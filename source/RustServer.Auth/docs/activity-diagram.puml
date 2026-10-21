@@ -1,0 +1,73 @@
+@startuml
+title RustServer.Auth — authentication and portal routing
+
+start
+partition "RustServer.Auth" {
+  :GET /login;
+  :Return wwwroot/index.html\n(200 text/html);
+  :Load /login.css and /login.js;
+
+  if (Authentication method?) then (Username/password)
+    :GET /api/auth/csrf;
+    :POST /api/auth/login\nwith X-CSRF-TOKEN;
+    if (Credentials accepted?) then (Yes)
+      :Redirect browser to /portal;
+    else (No)
+      :Show login error on /login;
+      stop
+    endif
+  else (Google)
+    :GET /api/auth/google/login;
+    :Google middleware callback /signin-google;
+    :Application callback\n/api/auth/google/login-callback;
+    if (Google sign-in succeeds?) then (Yes)
+      :Redirect browser to /portal;
+    else (No)
+      :Redirect browser to /login?googleError=1;
+      stop
+    endif
+  else (Steam)
+    :GET /api/auth/steam/login;
+    :Steam middleware callback /signin-steam;
+    :Application callback\n/api/auth/steam/login-callback;
+    if (Steam sign-in succeeds?) then (Yes)
+      :Redirect browser to /portal;
+    else (No)
+      :Redirect browser to /login?steamError=1;
+      stop
+    endif
+  endif
+
+  :GET /portal;
+  if (Admin role?) then (Yes)
+    :Redirect to /admin;
+    :Render Administrator page;
+
+    switch (Administrator action)
+    case (Player Portal)
+      :Navigate to /player;
+    case (Admin Dashboard)
+      :Navigate to /dashboard;
+    case (Sign Out)
+      :POST /api/auth/logout\nwith X-CSRF-TOKEN;
+      :Navigate to /login;
+    case (Link Google)
+      :Google middleware callback /signin-google;
+      :Application callback\n/api/auth/google/link-callback;
+      :Navigate to /admin?googleLinked=1;
+    case (Link Steam)
+      :Steam middleware callback /signin-steam;
+      :Application callback\n/api/auth/steam/link-callback;
+      :Navigate to /admin?steamLinked=1;
+    endswitch
+  else (Player)
+    :Redirect to /player;
+  endif
+}
+
+partition "Other applications (not implemented by RustServer.Auth)" {
+  :Handle /player or /dashboard\nwhen the platform routes them;
+}
+
+stop
+@enduml

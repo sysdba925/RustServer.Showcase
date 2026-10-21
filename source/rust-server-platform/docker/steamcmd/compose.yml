@@ -1,0 +1,7 @@
+services:
+  steamcmd:
+    image: cm2network/steamcmd:latest
+    volumes:
+      - "${RUST_SERVER_PATH:?Set RUST_SERVER_PATH in /etc/rustserver/rust-server.env}:/server"
+      - "./scripts/update-rust.sh:/scripts/update-rust.sh:ro"
+    entrypoint: ["/bin/bash", "/scripts/update-rust.sh"]

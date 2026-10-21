@@ -1,0 +1,827 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "RustServer Updater API",
+    "version": "v1",
+    "description": "API contract for RustServer application registration, durable operation tracking, installation, and update orchestration."
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Checks whether Updater is running.",
+        "operationId": "getHealth",
+        "x-implementation-status": "implemented",
+        "responses": {
+          "200": {
+            "description": "Updater is available.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/emergency": {
+      "get": {
+        "tags": ["Emergency"],
+        "summary": "Serves the built-in emergency administration page.",
+        "description": "Dependency-free HTML, CSS, and JavaScript served by the Updater process. It uses the existing hosting access boundary.",
+        "operationId": "getEmergencyPage",
+        "x-implementation-status": "implemented",
+        "responses": {
+          "200": {
+            "description": "Emergency administration page.",
+            "content": {
+              "text/html": {
+                "schema": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/emergency": {
+      "get": {
+        "tags": ["Emergency"],
+        "summary": "Gets emergency-page application state and permitted release choices.",
+        "description": "Queries all releases through the configured GitHub client, filters them by the installation-wide channel, and orders them newest first.",
+        "operationId": "getEmergencyState",
+        "x-implementation-status": "implemented",
+        "responses": {
+          "200": {
+            "description": "Current application snapshot and server-filtered release choices.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/EmergencyStateResponse" }
+              }
+            }
+          },
+          "503": { "description": "The local emergency state cannot be read." }
+        }
+      }
+    },
+    "/api/emergency/applications/{name}/update": {
+      "post": {
+        "tags": ["Emergency"],
+        "summary": "Prepares and activates a selected channel-permitted release in one operation.",
+        "description": "Uses the normal authenticated release metadata lookup, download, checksum verification, staging-manifest verification, executor-backed Update, and operation tracking. It requires an existing installed release.",
+        "operationId": "emergencyUpdateApplication",
+        "x-implementation-status": "implemented",
+        "parameters": [{ "$ref": "#/components/parameters/ApplicationName" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/EmergencyUpdateApplicationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Emergency update was accepted for background processing.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/OperationAcceptedResponse" }
+              }
+            }
+          },
+          "400": { "description": "The release tag is missing or outside the installation-wide channel." },
+          "404": { "description": "No application is registered with the supplied name." },
+          "409": { "description": "The application is not installed, lacks readiness configuration, or already has an active operation." },
+          "503": { "description": "The Bootstrap-owned application registry is invalid or unavailable." }
+        }
+      }
+    },
+    "/api/applications": {
+      "get": {
+        "tags": [
+          "Applications"
+        ],
+        "summary": "Lists registered applications and their state.",
+        "operationId": "getApplications",
+        "x-implementation-status": "implemented",
+        "responses": {
+          "200": {
+            "description": "Registered applications.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApplicationResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/applications/registrations": {
+      "get": {
+        "tags": [
+          "Applications"
+        ],
+        "summary": "Lists durable application registration definitions.",
+        "operationId": "getApplicationRegistrations",
+        "x-implementation-status": "implemented",
+        "responses": {
+          "200": {
+            "description": "Registration definitions, excluding runtime snapshots and credentials.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApplicationRegistration"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/applications/{name}": {
+      "get": {
+        "tags": [
+          "Applications"
+        ],
+        "summary": "Gets information about one registered application.",
+        "operationId": "getApplication",
+        "x-implementation-status": "implemented",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ApplicationName"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Application information.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApplicationResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No application is registered with the supplied name."
+          }
+        }
+      }
+    },
+    "/api/applications/refresh": {
+      "post": {
+        "tags": [
+          "Applications"
+        ],
+        "summary": "Reloads the INI registry and refreshes application snapshots.",
+        "description": "Validates and reloads /etc/rustserver/updater-applications.ini, then reads installed versions and systemd state and retrieves available versions from GitHub Releases. An invalid INI leaves the last good view available but returns 503 and blocks deployment admission.",
+        "operationId": "refreshApplications",
+        "x-implementation-status": "implemented",
+        "responses": {
+          "200": {
+            "description": "The refreshed application snapshots.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApplicationResponse"
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "GitHub credential is unavailable. Existing snapshots are retained."
+          }
+        }
+      }
+    },
+    "/api/applications/{name}/install": {
+      "post": {
+        "tags": [
+          "Applications"
+        ],
+        "summary": "Activates an already verified package as the first application release.",
+        "operationId": "installApplication",
+        "x-implementation-status": "implemented",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ApplicationName"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeploymentApplicationRequest"
+              }
+            }
+          },
+          "503": {
+            "description": "The Bootstrap-owned applications.ini file is invalid or cannot be read."
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Installation was accepted for asynchronous processing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationAcceptedResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No application is registered with the supplied name."
+          },
+          "409": {
+            "description": "The application is already installed, another operation is active, or the requested verified staging package is unavailable."
+          }
+        }
+      }
+    },
+    "/api/applications/{name}/update": {
+      "post": {
+        "tags": ["Applications"],
+        "summary": "Activates an already verified package for an installed application.",
+        "operationId": "updateApplication",
+        "x-implementation-status": "implemented",
+        "parameters": [{ "$ref": "#/components/parameters/ApplicationName" }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/DeploymentApplicationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Update was accepted for executor-backed asynchronous processing.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OperationAcceptedResponse" } } }
+          },
+          "404": { "description": "No application is registered with the supplied name." },
+          "409": { "description": "The application is not installed, an operation is active, or no matching verified staging package exists." }
+        }
+      }
+    },
+    "/api/applications/{name}/rollback": {
+      "post": {
+        "tags": ["Applications"],
+        "summary": "Reactivates the previous successful release or an explicit installed release.",
+        "operationId": "rollbackApplication",
+        "x-implementation-status": "implemented",
+        "parameters": [{ "$ref": "#/components/parameters/ApplicationName" }],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/RollbackApplicationRequest" }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Rollback was accepted for executor-backed asynchronous processing.",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/OperationAcceptedResponse" } } }
+          },
+          "404": { "description": "No application is registered with the supplied name." },
+          "409": { "description": "No installed release is available, an operation is active, or the requested rollback target is unavailable." }
+        }
+      }
+    },
+    "/api/applications/{name}/prepare": {
+      "post": {
+        "tags": [
+          "Applications"
+        ],
+        "summary": "Resolves, verifies, and stages one explicit release package.",
+        "description": "Downloads private GitHub Release assets through the authenticated Releases API and stages a verified package without installing it, changing the current link, or restarting a service.",
+        "operationId": "prepareApplicationPackage",
+        "x-implementation-status": "implemented",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ApplicationName"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PrepareApplicationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Package preparation was accepted for asynchronous processing.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationAcceptedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The requested version is missing or invalid. Channel and release validation failures are stored on the accepted operation."
+          },
+          "404": {
+            "description": "No application is registered with the supplied name."
+          },
+          "409": {
+            "description": "A pending or running operation already exists for the application."
+          }
+        }
+      }
+    },
+    "/api/operations/{id}": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Gets the state of a durable operation.",
+        "operationId": "getOperation",
+        "x-implementation-status": "implemented",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OperationId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Operation state.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Operation"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No operation exists with the supplied identifier."
+          }
+        }
+      }
+    },
+    "/api/operations": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Lists the newest durable operations.",
+        "description": "Returns at most the requested number of operation records, including failed and interrupted records.",
+        "operationId": "getOperations",
+        "x-implementation-status": "implemented",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/OperationLimit"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Newest operation records.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Operation"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "The requested limit is outside the supported range."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "ApplicationName": {
+        "name": "name",
+        "in": "path",
+        "required": true,
+        "description": "Registered application name.",
+        "schema": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "OperationId": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "description": "Identifier returned after asynchronous updater work is accepted.",
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        }
+      },
+      "OperationLimit": {
+        "name": "limit",
+        "in": "query",
+        "required": false,
+        "description": "Maximum number of newest operation records to return. Defaults to 50 and must be from 1 through 100.",
+        "schema": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 50
+        }
+      }
+    },
+    "schemas": {
+      "ApplicationRegistration": {
+        "type": "object",
+        "required": [
+          "name",
+          "repository",
+          "installationPath",
+          "type"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Stable application registration name."
+          },
+          "repository": {
+            "type": "string",
+            "description": "GitHub owner/repository used exclusively for release discovery."
+          },
+          "installationPath": {
+            "type": "string",
+            "description": "Absolute application root below /opt/rustserver."
+          },
+          "type": {
+            "$ref": "#/components/schemas/ApplicationType"
+          },
+          "serviceName": {
+            "type": "string",
+            "nullable": true,
+            "description": "Simple systemd .service unit name, required for DotNet and absent for StaticWeb."
+          },
+          "entrypoint": {
+            "type": "string",
+            "nullable": true,
+            "description": "Simple .dll entrypoint file name, required for DotNet and absent for StaticWeb."
+          },
+          "entryFile": {
+            "type": "string",
+            "nullable": true,
+            "description": "StaticWeb entry file; currently required to be index.html for StaticWeb and absent for DotNet."
+          },
+          "readiness": {
+            "$ref": "#/components/schemas/ApplicationReadinessProbe"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApplicationType": {
+        "type": "string",
+        "enum": [
+          "DotNet",
+          "StaticWeb"
+        ],
+        "description": "Application runtime policy. Legacy registrations without Type resolve to DotNet."
+      },
+      "PrepareApplicationRequest": {
+        "type": "object",
+        "required": [
+          "version"
+        ],
+        "properties": {
+          "version": {
+            "type": "string",
+            "description": "Exact GitHub Release tag. Development accepts vX.Y.Z-dev.N; Production accepts vX.Y.Z."
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeploymentApplicationRequest": {
+        "type": "object",
+        "required": ["version"],
+        "properties": {
+          "version": {
+            "type": "string",
+            "description": "Exact version with a pre-existing verified Stage 6 staging package. This endpoint never downloads a package."
+          }
+        },
+        "additionalProperties": false
+      },
+      "RollbackApplicationRequest": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "description": "Optional previously installed release. Omit to select the previous successful release."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApplicationReadinessProbe": {
+        "type": "object",
+        "required": ["url", "attempts", "timeoutSeconds", "delaySeconds"],
+        "properties": {
+          "url": { "type": "string", "format": "uri", "description": "Root-policy-approved HTTP(S) readiness endpoint." },
+          "attempts": { "type": "integer", "minimum": 1, "maximum": 60 },
+          "timeoutSeconds": { "type": "integer", "minimum": 1, "maximum": 60 },
+          "delaySeconds": { "type": "integer", "minimum": 0, "maximum": 60 }
+        },
+        "additionalProperties": false
+      },
+      "HealthResponse": {
+        "type": "object",
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "Healthy"
+            ],
+            "description": "Process health status."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApplicationResponse": {
+        "type": "object",
+        "required": [
+          "name",
+          "installedVersion",
+          "availableVersion",
+          "status",
+          "updateAvailable"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Registered application name."
+          },
+          "installedVersion": {
+            "type": "string",
+            "nullable": true,
+            "description": "Full installed release tag from the final target directory of the application's current symbolic link, or null when no valid installation is present."
+          },
+          "availableVersion": {
+            "type": "string",
+            "nullable": true,
+            "description": "Latest known full GitHub release tag in the configured channel, or null when the channel is empty or no successful lookup has occurred."
+          },
+          "status": {
+            "$ref": "#/components/schemas/ApplicationStatus"
+          },
+          "updateAvailable": {
+            "type": "boolean",
+            "description": "Whether the known available version is newer than the installed version."
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmergencyStateResponse": {
+        "type": "object",
+        "required": ["channel", "applications"],
+        "properties": {
+          "channel": {
+            "type": "string",
+            "enum": ["Development", "Production"],
+            "description": "Installation-wide release channel loaded by the Updater backend."
+          },
+          "applications": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/EmergencyApplicationResponse" }
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmergencyApplicationResponse": {
+        "type": "object",
+        "required": ["name", "installedVersion", "status", "availableVersions", "availableVersionsError"],
+        "properties": {
+          "name": { "type": "string" },
+          "installedVersion": { "type": "string", "nullable": true },
+          "status": { "$ref": "#/components/schemas/ApplicationStatus" },
+          "availableVersions": {
+            "type": "array",
+            "description": "All non-draft releases in the installation-wide channel, newest first.",
+            "items": { "type": "string" }
+          },
+          "availableVersionsError": {
+            "type": "string",
+            "nullable": true,
+            "description": "Non-secret discovery failure; release choices are empty while rollback remains available."
+          }
+        },
+        "additionalProperties": false
+      },
+      "EmergencyUpdateApplicationRequest": {
+        "type": "object",
+        "required": ["version"],
+        "properties": {
+          "version": {
+            "type": "string",
+            "description": "Exact server-listed release tag. Development accepts vX.Y.Z-dev.N; Production accepts vX.Y.Z."
+          }
+        },
+        "additionalProperties": false
+      },
+      "ApplicationStatus": {
+        "type": "string",
+        "enum": [
+          "NotInstalled",
+          "Running",
+          "Stopped",
+          "Unknown"
+        ],
+        "description": "NotInstalled when an application's current symbolic link is absent or invalid; otherwise the latest known systemd runtime state."
+      },
+      "OperationAcceptedResponse": {
+        "type": "object",
+        "required": [
+          "operationId"
+        ],
+        "properties": {
+          "operationId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier used to retrieve the asynchronous operation state."
+          }
+        },
+        "additionalProperties": false
+      },
+      "Operation": {
+        "type": "object",
+        "required": [
+          "id",
+          "applicationName",
+          "type",
+          "status",
+          "step",
+          "targetVersion",
+          "previousVersion",
+          "createdAt",
+          "startedAt",
+          "completedAt",
+          "error",
+          "result",
+          "deployment"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Operation identifier."
+          },
+          "applicationName": {
+            "type": "string",
+            "description": "Application associated with this operation."
+          },
+          "type": {
+            "$ref": "#/components/schemas/OperationType"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OperationState"
+          },
+          "step": {
+            "type": "string",
+            "description": "Last durably recorded safe-resume step."
+          },
+          "targetVersion": {
+            "type": "string",
+            "nullable": true,
+            "description": "Requested release version, when applicable."
+          },
+          "previousVersion": {
+            "type": "string",
+            "nullable": true,
+            "description": "Release version present before the operation, when known."
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "UTC time when the operation record was accepted."
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "UTC time when work began."
+          },
+          "completedAt": {
+            "type": "string",
+            "format": "date-time",
+            "nullable": true,
+            "description": "UTC time when the operation entered a terminal state."
+          },
+          "error": {
+            "type": "string",
+            "nullable": true,
+            "description": "Failure or interruption detail, when one was recorded."
+          },
+          "result": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PackagePreparationResult"
+              }
+            ],
+            "nullable": true,
+            "description": "Verified staging result for a successful Prepare operation or a successful emergency Update; null for other operations or failures."
+          },
+          "deployment": {
+            "allOf": [{ "$ref": "#/components/schemas/DeploymentResult" }],
+            "nullable": true,
+            "description": "Executor-confirmed activation outcome; null for preparation operations."
+          }
+        },
+        "additionalProperties": false
+      },
+      "OperationState": {
+        "type": "string",
+        "enum": [
+          "Pending",
+          "Running",
+          "Succeeded",
+          "Failed",
+          "Interrupted"
+        ],
+        "description": "Current asynchronous operation state. Interrupted means Updater stopped before a safe continuation strategy was available; it does not imply success or rollback."
+      },
+      "OperationType": {
+        "type": "string",
+        "enum": [
+          "Prepare",
+          "Install",
+          "Update",
+          "Rollback",
+          "SelfUpdate"
+        ],
+        "description": "The deployment-related work represented by the operation."
+      },
+      "PackagePreparationResult": {
+        "type": "object",
+        "required": [
+          "applicationName",
+          "releaseTag",
+          "stagingPath",
+          "verifiedChecksum",
+          "preparedAt"
+        ],
+        "properties": {
+          "applicationName": {
+            "type": "string"
+          },
+          "releaseTag": {
+            "type": "string"
+          },
+          "stagingPath": {
+            "type": "string",
+            "description": "Persistent Updater-owned staging directory; not an activated release directory."
+          },
+          "verifiedChecksum": {
+            "type": "string",
+            "pattern": "^[A-F0-9]{64}$"
+          },
+          "preparedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DeploymentResult": {
+        "type": "object",
+        "required": ["previousVersion", "targetVersion", "activeVersion", "rolledBack", "recordedAt"],
+        "properties": {
+          "previousVersion": { "type": "string", "nullable": true },
+          "targetVersion": { "type": "string", "nullable": true },
+          "activeVersion": { "type": "string", "nullable": true },
+          "rolledBack": { "type": "boolean" },
+          "recordedAt": { "type": "string", "format": "date-time" }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

@@ -1,0 +1,58 @@
+#!/usr/bin/env bash
+# Quick reference for installed SSH/TUI tools.
+set -Eeuo pipefail
+
+if (( $# > 0 )); then
+  printf 'Использование: tools\n' >&2
+  exit 2
+fi
+
+cyan=''; green=''; reset=''
+if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+  cyan=$'\033[1;36m'
+  green=$'\033[1;32m'
+  reset=$'\033[0m'
+fi
+
+current_group=''
+found=0
+item() {
+  local group="$1" cmd="$2" description="$3" detected="$2"
+  if [[ "$cmd" == bat ]] && ! command -v bat >/dev/null 2>&1; then
+    detected=batcat
+  fi
+  command -v "$detected" >/dev/null 2>&1 || return 0
+
+  if [[ "$group" != "$current_group" ]]; then
+    printf '\n%s%s%s\n' "$cyan" "$group" "$reset"
+    current_group="$group"
+  fi
+  printf '  %s%-15s%s %s\n' "$green" "$cmd" "$reset" "$description"
+  found=1
+}
+
+printf '%sКОНСОЛЬНЫЕ ИНСТРУМЕНТЫ%s\n' "$cyan" "$reset"
+item 'РЕДАКТОРЫ И ФАЙЛЫ' termide       'Terminal IDE: файлы и код прямо через SSH'
+item 'РЕДАКТОРЫ И ФАЙЛЫ' micro         'Редактор текста, почти как Блокнот'
+item 'РЕДАКТОРЫ И ФАЙЛЫ' hx            'Helix: редактор кода с подсветкой и LSP'
+item 'РЕДАКТОРЫ И ФАЙЛЫ' mc            'Две панели: копировать и двигать файлы'
+item 'РЕДАКТОРЫ И ФАЙЛЫ' yazi          'Файловый менеджер с предпросмотром'
+item 'РЕДАКТОРЫ И ФАЙЛЫ' bat           'Красиво показать содержимое файла'
+item 'GIT И DOCKER'      lazygit       'Git через меню, без длинных команд'
+item 'GIT И DOCKER'      lazydocker    'Docker: контейнеры, статус и логи'
+item 'СЕРВЕР И ЛОГИ'     btop          'Процессор, память и нагрузка в цвете'
+item 'СЕРВЕР И ЛОГИ'     tmux          'SSH отвалился, а сессия осталась'
+item 'СЕРВЕР И ЛОГИ'     systemctl-tui 'Запускать и перезапускать Linux-службы'
+item 'СЕРВЕР И ЛОГИ'     lazyjournal   'Системные логи через удобное меню'
+item 'СЕРВЕР И ЛОГИ'     lnav          'Искать ошибки в логах'
+item 'ДИСКИ И ПОИСК'    ncdu          'Найти папки, которые сожрали диск'
+item 'ДИСКИ И ПОИСК'    duf           'Сколько свободного места на диске'
+item 'ДИСКИ И ПОИСК'    dust          'Какие файлы и папки самые тяжёлые'
+item 'ДИСКИ И ПОИСК'    rg            'Быстро искать текст внутри файлов'
+item 'ДИСКИ И ПОИСК'    fzf           'Удобно выбирать из длинного списка'
+item 'РАЗРАБОТКА'       jq            'Красиво показать JSON и достать поля'
+item 'РАЗРАБОТКА'       posting       'HTTP-запросы к API, как Postman'
+
+if (( ! found )); then
+  printf '\nНи одного инструмента из списка пока не найдено.\n'
+fi

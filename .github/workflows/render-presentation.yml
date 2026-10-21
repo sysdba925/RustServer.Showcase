@@ -1,0 +1,54 @@
+name: Render presentation slides
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - "presentation/RustServer_Platform_Complete.pptx"
+      - ".github/workflows/render-presentation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out showcase
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Install slide rendering tools
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends libreoffice-impress poppler-utils
+
+      - name: Render four presentation slides
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p /tmp/rustserver-presentation presentation/slides
+          libreoffice -env:UserInstallation=file:///tmp/lo-rustserver-showcase --headless --convert-to pdf --outdir /tmp/rustserver-presentation presentation/RustServer_Platform_Complete.pptx
+          pdf=/tmp/rustserver-presentation/RustServer_Platform_Complete.pdf
+          test -s "$pdf"
+          test "$(pdfinfo "$pdf" | awk '/^Pages:/ {print $2}')" = "4"
+          pdftoppm -f 1 -l 1 -singlefile -scale-to-x 1600 -scale-to-y -1 -png "$pdf" presentation/slides/01-overview
+          pdftoppm -f 2 -l 2 -singlefile -scale-to-x 1600 -scale-to-y -1 -png "$pdf" presentation/slides/02-architecture
+          pdftoppm -f 3 -l 3 -singlefile -scale-to-x 1600 -scale-to-y -1 -png "$pdf" presentation/slides/03-features
+          pdftoppm -f 4 -l 4 -singlefile -scale-to-x 1600 -scale-to-y -1 -png "$pdf" presentation/slides/04-scenarios
+
+      - name: Commit slide images
+        shell: bash
+        run: |
+          set -euo pipefail
+          git add presentation/slides/*.png
+          if git diff --cached --quiet; then
+            echo "Slides already up to date."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Render README presentation images"
+          git push

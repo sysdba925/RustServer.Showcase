@@ -1,0 +1,15 @@
+[Unit]
+Description=RustServer Updater deployment executor connection %i
+After=local-fs.target
+
+[Service]
+Type=exec
+User=root
+Group=root
+StandardInput=socket
+StandardOutput=journal
+StandardError=journal
+ExecStart=/usr/bin/dotnet /opt/rustserver/updater/current/executor/RustServer.Updater.Executor.dll
+NoNewPrivileges=no
+PrivateTmp=yes
+

@@ -1,0 +1,5 @@
+.editor { padding: 0 1.25rem 1.25rem; display: grid; gap: .75rem; }
+.editor h3, .editor p { margin: 0; }
+.swatch { display: inline-block; width: .8rem; height: .8rem; border-radius: 50%; margin-right: .25rem; }
+.url { display: block; color: #aaa69e; overflow-wrap: anywhere; }
+.error { margin: 0 1.25rem 1.25rem; }

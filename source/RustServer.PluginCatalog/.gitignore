@@ -1,0 +1,20 @@
+[Bb]in/
+[Oo]bj/
+.vs/
+.idea/
+.local/
+incoming-packages/
+state/
+TestResults/
+artifacts/
+
+
+## IDE files
+.vs/
+.idea/
+*.suo
+*.pubxml.user
+*.vsidx
+*.dtbcache.v2
+obj-contract/
+bin-contract/

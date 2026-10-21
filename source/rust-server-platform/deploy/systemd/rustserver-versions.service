@@ -1,0 +1,26 @@
+[Unit]
+Description=RustServer Versions API
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=exec
+User=rustserver-versions
+Group=rustserver-versions
+WorkingDirectory=/opt/rustserver/versions/current
+Environment=DOTNET_ENVIRONMENT=Production
+Environment=ASPNETCORE_ENVIRONMENT=Production
+EnvironmentFile=/etc/rustserver/topology.env
+EnvironmentFile=/etc/rustserver/rust-server.env
+ExecStart=/bin/bash -ec 'export RustVersions__AppManifestPath="$$RUST_SERVER_PATH/steamapps/appmanifest_258550.acf" OxideVersions__AssemblyPath="$$RUST_SERVER_PATH/RustDedicated_Data/Managed/Oxide.Rust.dll"; exec /usr/bin/dotnet /opt/rustserver/versions/current/RustServer.Versions.Api.dll'
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=30s
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+
+[Install]
+WantedBy=multi-user.target

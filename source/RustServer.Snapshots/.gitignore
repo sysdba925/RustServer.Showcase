@@ -1,0 +1,24 @@
+## Build outputs
+[Bb]in/
+[Oo]bj/
+obj-contract/
+bin-contract/
+
+## Test outputs
+[Tt]est[Rr]esult*/
+CodeCoverage/
+
+## IDE state
+.vs/
+.idea/
+*.suo
+*.user
+
+## NuGet packages and logs
+*.nupkg
+*.snupkg
+*.binlog
+
+## Locally generated GitHub Release artifacts
+*.pubxml.user
+artifacts/

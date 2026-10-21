@@ -1,0 +1,28 @@
+[Unit]
+Description=RustServer Auth service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=exec
+User=rustserver-auth
+Group=rustserver-auth
+WorkingDirectory=/var/lib/rustserver/auth
+StateDirectory=rustserver/auth
+StateDirectoryMode=0750
+Environment=DOTNET_ENVIRONMENT=Production
+Environment=ASPNETCORE_ENVIRONMENT=Production
+EnvironmentFile=/etc/rustserver/auth.env
+ExecStart=/usr/bin/dotnet /opt/rustserver/auth/current/RustServer.Auth.dll --urls=http://127.0.0.1:5286
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=30s
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/var/lib/rustserver/auth
+
+[Install]
+WantedBy=multi-user.target

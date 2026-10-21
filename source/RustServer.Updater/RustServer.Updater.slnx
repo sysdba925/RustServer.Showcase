@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/RustServer.Updater.Api/RustServer.Updater.Api.csproj" />
+    <Project Path="src/RustServer.Updater.Executor/RustServer.Updater.Executor.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/RustServer.Updater.Tests/RustServer.Updater.Tests.csproj" />
+  </Folder>
+</Solution>

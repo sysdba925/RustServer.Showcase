@@ -1,0 +1,1151 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "RustServer Control API",
+    "description": "Controls Rust Dedicated Server lifecycle and manages Rust and Oxide update operations.",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/server/status": {
+      "get": {
+        "tags": [
+          "RustServer.Control.Api"
+        ],
+        "summary": "Gets Docker lifecycle and Rust server readiness state.",
+        "operationId": "GetServerStatus",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/server/configuration": {
+      "get": {
+        "tags": [
+          "RustServer.Control.Api"
+        ],
+        "summary": "Gets desired configuration and the configuration effective for the current Rust process.",
+        "operationId": "GetServerConfiguration",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerConfigurationResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "RustServer.Control.Api"
+        ],
+        "summary": "Updates Control's desired game-server configuration without restarting Rust.",
+        "operationId": "UpdateServerConfiguration",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateServerConfigurationRequest"
+                  }
+                ],
+                "description": "Game-server settings requested for the next Rust process created by Control."
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerConfigurationResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/server/network-access": {
+      "get": {
+        "tags": [
+          "RustServer.Control.Api"
+        ],
+        "summary": "Gets the persisted public reachability mode and maintenance UDP port.",
+        "operationId": "GetNetworkAccess",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NetworkAccessResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "RustServer.Control.Api"
+        ],
+        "summary": "Applies Docker-aware nftables rules without restarting the Rust server or recreating its container.",
+        "operationId": "UpdateNetworkAccess",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/UpdateNetworkAccessRequest"
+                  }
+                ],
+                "description": "Network reachability requested for the Rust Dedicated Server."
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NetworkAccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/server/start": {
+      "post": {
+        "tags": [
+          "RustServer.Control.Api"
+        ],
+        "summary": "Starts the Rust server.",
+        "operationId": "StartServer",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerStatus"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/server/stop": {
+      "post": {
+        "tags": [
+          "RustServer.Control.Api"
+        ],
+        "summary": "Stops the Rust server.",
+        "operationId": "StopServer",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerStatus"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/server/restart": {
+      "post": {
+        "tags": [
+          "RustServer.Control.Api"
+        ],
+        "summary": "Restarts the Rust server.",
+        "operationId": "RestartServer",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerStatus"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/server/wipe": {
+      "post": {
+        "tags": [
+          "RustServer.Control.Api"
+        ],
+        "summary": "Queues an explicit wipe operation. Rust must remain stopped while it runs.",
+        "operationId": "WipeServer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/WipePlanRequest"
+                  }
+                ],
+                "description": "Explicit semantic wipe plan. It contains no filesystem paths."
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationAcceptedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/server/update": {
+      "post": {
+        "tags": [
+          "RustServer.Control.Api"
+        ],
+        "summary": "Queues a Rust server update operation.",
+        "operationId": "UpdateServer",
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationAcceptedResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/server/startup/schema": {
+      "get": {
+        "tags": [
+          "RustServer.Control.Api"
+        ],
+        "summary": "Gets the fixed Rust server startup milestone schema.",
+        "operationId": "GetStartupTrackingSchema",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartupSchemaResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/server/startup": {
+      "get": {
+        "tags": [
+          "RustServer.Control.Api"
+        ],
+        "summary": "Gets startup progress for the current Rust server run.",
+        "operationId": "GetStartupTrackingSnapshot",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StartupSnapshotResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "tags": [
+          "RustServer.Control.Api"
+        ],
+        "summary": "Reports that the Control API is responding.",
+        "operationId": "GetHealth",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/updates/oxide": {
+      "post": {
+        "tags": [
+          "RustServer.Control.Api"
+        ],
+        "summary": "Queues an Oxide update operation.",
+        "operationId": "UpdateOxide",
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationAcceptedResponse"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/operations/{id}": {
+      "get": {
+        "tags": [
+          "RustServer.Control.Api"
+        ],
+        "summary": "Gets the current state of an asynchronous server-mutation operation.",
+        "operationId": "GetOperation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "HttpValidationProblemDetails": {
+        "required": [
+          "errors"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "additionalProperties": { }
+      },
+      "NetworkAccessResponse": {
+        "required": [
+          "maintenancePort",
+          "publicEnabled"
+        ],
+        "type": "object",
+        "properties": {
+          "publicEnabled": {
+            "type": "boolean"
+          },
+          "maintenancePort": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Persisted NetworkAccess mode and UDP maintenance entry point."
+      },
+      "OperationAcceptedResponse": {
+        "required": [
+          "id",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Operation identifier used with `GET /api/operations/{id}`.",
+            "format": "uuid"
+          },
+          "status": {
+            "type": "string",
+            "description": "Initial operation status."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Accepted asynchronous update operation."
+      },
+      "OperationResponse": {
+        "required": [
+          "createdAt",
+          "id",
+          "status",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Operation identifier.",
+            "format": "uuid"
+          },
+          "type": {
+            "type": "string",
+            "description": "Operation type."
+          },
+          "status": {
+            "type": "string",
+            "description": "Current operation status."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "UTC time at which the operation was created.",
+            "format": "date-time"
+          },
+          "startedAt": {
+            "type": "string",
+            "description": "UTC time at which execution started, or null while pending.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "finishedAt": {
+            "type": "string",
+            "description": "UTC time at which execution completed, or null until completion.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "exitCode": {
+            "type": "integer",
+            "description": "Updater process exit code, or null until completion.",
+            "format": "int32",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "description": "Failure message, or null when the operation has not failed.",
+            "nullable": true
+          },
+          "wipeResult": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WipeOperationResultResponse"
+              }
+            ],
+            "description": "Path-free wipe target report, or null for non-wipe operations and before wipe completion.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Current state of an asynchronous server-mutation operation."
+      },
+      "PluginDataWipeActionRequest": {
+        "required": [
+          "action",
+          "target"
+        ],
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "string"
+          },
+          "action": {
+            "enum": [
+              "keep",
+              "delete",
+              "transform"
+            ],
+            "type": "string",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WipeAction"
+              }
+            ],
+            "description": "Requested handling for a known wipe target. Allowed values: `keep`, `delete`, and `transform`."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Requested handling of one registered plugin-data target."
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
+      },
+      "ServerConfiguration": {
+        "required": [
+          "description",
+          "hostname",
+          "maxPlayers",
+          "saveInterval",
+          "seed",
+          "tickRate",
+          "worldSize"
+        ],
+        "type": "object",
+        "properties": {
+          "hostname": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "maxPlayers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tickRate": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "saveInterval": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "seed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "worldSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "ServerConfigurationResponse": {
+        "required": [
+          "desired",
+          "effective"
+        ],
+        "type": "object",
+        "properties": {
+          "desired": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ServerConfiguration"
+              }
+            ]
+          },
+          "effective": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ServerConfiguration"
+              }
+            ],
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Desired configuration owned by Control and configuration effective for the current Rust process. The values may differ until another Rust process is successfully started."
+      },
+      "ServerStatus": {
+        "required": [
+          "isReady",
+          "isRunning"
+        ],
+        "type": "object",
+        "properties": {
+          "isRunning": {
+            "type": "boolean"
+          },
+          "isReady": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "StartupMilestoneResponse": {
+        "required": [
+          "id",
+          "label"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Stable milestone identifier."
+          },
+          "label": {
+            "type": "string",
+            "description": "Human-readable milestone label."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Presentation information for one startup milestone."
+      },
+      "StartupSchemaResponse": {
+        "required": [
+          "milestones",
+          "version"
+        ],
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "integer",
+            "description": "Schema version.",
+            "format": "int32"
+          },
+          "milestones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StartupMilestoneResponse"
+            },
+            "description": "Ordered milestone definitions."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Fixed presentation schema for Rust server startup milestones."
+      },
+      "StartupSnapshotResponse": {
+        "required": [
+          "milestones",
+          "sessionId",
+          "started"
+        ],
+        "type": "object",
+        "properties": {
+          "sessionId": {
+            "type": "string",
+            "description": "Opaque startup-session identifier, or null when no Rust container is running.",
+            "nullable": true
+          },
+          "started": {
+            "type": "boolean",
+            "description": "Whether the final Steam server connection milestone has been observed."
+          },
+          "milestones": {
+            "type": "array",
+            "items": {
+              "enum": [
+                "pending",
+                "reached",
+                "skipped"
+              ],
+              "type": "string",
+              "description": "A startup milestone's current progress state."
+            },
+            "description": "Nine positional milestone states: pending, reached, or skipped."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Current startup progress for the active Rust server run."
+      },
+      "UpdateNetworkAccessRequest": {
+        "required": [
+          "maintenancePort",
+          "publicEnabled"
+        ],
+        "type": "object",
+        "properties": {
+          "publicEnabled": {
+            "type": "boolean"
+          },
+          "maintenancePort": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Network reachability requested for the Rust Dedicated Server."
+      },
+      "UpdateServerConfigurationRequest": {
+        "required": [
+          "description",
+          "hostname",
+          "maxPlayers",
+          "saveInterval",
+          "seed",
+          "tickRate",
+          "worldSize"
+        ],
+        "type": "object",
+        "properties": {
+          "hostname": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "maxPlayers": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "tickRate": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "saveInterval": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "seed": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "worldSize": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Game-server settings requested for the next Rust process created by Control."
+      },
+      "WipeAction": {
+        "enum": [
+          "keep",
+          "delete",
+          "transform"
+        ],
+        "type": "string",
+        "description": "Requested handling for a known wipe target. Allowed values: `keep`, `delete`, and `transform`."
+      },
+      "WipeOperationResultResponse": {
+        "required": [
+          "succeeded",
+          "targets"
+        ],
+        "type": "object",
+        "properties": {
+          "succeeded": {
+            "type": "boolean"
+          },
+          "targets": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WipeTargetResultResponse"
+            }
+          }
+        },
+        "additionalProperties": false,
+        "description": "Path-free result for a wipe operation."
+      },
+      "WipePlanRequest": {
+        "required": [
+          "blueprints",
+          "world"
+        ],
+        "type": "object",
+        "properties": {
+          "world": {
+            "enum": [
+              "keep",
+              "delete",
+              "transform"
+            ],
+            "type": "string",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WipeAction"
+              }
+            ],
+            "description": "Requested handling for a known wipe target. Allowed values: `keep`, `delete`, and `transform`."
+          },
+          "blueprints": {
+            "enum": [
+              "keep",
+              "delete",
+              "transform"
+            ],
+            "type": "string",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/WipeAction"
+              }
+            ],
+            "description": "Requested handling for a known wipe target. Allowed values: `keep`, `delete`, and `transform`."
+          },
+          "pluginData": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PluginDataWipeActionRequest"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Explicit semantic wipe plan. It contains no filesystem paths."
+      },
+      "WipeTargetResultResponse": {
+        "required": [
+          "action",
+          "affectedItems",
+          "outcome",
+          "target"
+        ],
+        "type": "object",
+        "properties": {
+          "target": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "outcome": {
+            "type": "string"
+          },
+          "affectedItems": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Result for one semantic wipe target."
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "RustServer.Control.Api"
+    }
+  ]
+}

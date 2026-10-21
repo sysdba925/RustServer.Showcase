@@ -1,0 +1,39 @@
+/* Shared RustServer prototype shell — sourced from Plugins V12 */
+.shell{min-height:100vh;display:flex;flex-direction:column}
+.brand{height:54px;background:#192330;border-bottom:1px solid #344253;display:flex;align-items:center;padding:0 27px;gap:12px}
+.brand strong{letter-spacing:1px}
+.wrap{flex:1;display:flex}
+.nav{width:185px;background:#17202c;border-right:1px solid #344253;padding:24px 10px}
+.nav .overline{font-size:11px;letter-spacing:1.7px;color:#7d8ca1;margin:0 12px 15px}
+.nav button{width:100%;border:0;background:none;color:#aab8c9;padding:12px 13px;text-align:left;border-radius:5px;margin-bottom:3px}
+.nav button.selected{background:#26384e;color:#fff;border-left:3px solid #70aeed;font-weight:650}
+.main{flex:1;min-width:0}
+@media (max-width:850px){
+.nav{width:112px}
+.nav button{font-size:12px}
+}
+@media (max-width:540px){
+.nav{width:78px}
+.nav .overline{margin-left:3px;font-size:9px}
+.nav button{font-size:10px;padding:10px 4px}
+}
+.brand{height:62px;background:linear-gradient(180deg,#181817,#10100f);border-color:#34312c;padding-left:0;gap:17px}
+.brand strong{letter-spacing:1.4px;font-weight:900}
+.rust-logo-slot{width:72px;height:62px;background:#a93d29;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;flex-shrink:0;border-right:1px solid #d35a3d}
+.nav{background:linear-gradient(180deg,#181715,#241b18);border-color:#342d28}
+.nav .overline{color:#9e9182;font-weight:850}
+.nav button{border-radius:0;color:#b1aca4;font-weight:750;text-transform:uppercase;letter-spacing:.4px;border-left:3px solid transparent}
+.nav button:hover{background:#302b25;color:#f4eee5}
+.nav button.selected{background:#657b3a;border-left-color:#9cbd5d;color:#f2f6e8}
+.h1,.brand strong,.panelhead h2,.mtop h2,.nav button,.btn,.modebtn strong,.release-item{font-family:"Roboto Condensed","Arial Narrow",Impact,sans-serif;font-weight:800;letter-spacing:.35px}
+.nav button,.btn,.modebtn,.release-item,.filelink{transition:background-color .14s ease,color .14s ease;outline-offset:2px}
+.btn:focus-visible,.nav button:focus-visible,.release-item:focus-visible,.modebtn:focus-visible,.filelink:focus-visible{outline:2px solid #c5db84}
+.nav button{border-left:3px solid transparent}
+.nav button:hover{background:#514939;color:#fff}
+.nav button.selected{background:#647e38;border-left-color:#647e38;color:#fff}
+.brand{padding-left:10px}
+.rust-logo-slot{width:62px;height:62px;background:linear-gradient(180deg,#321916 0%,#301815 78%,#29201c 91%,#20201e 100%);border-right:1px solid #34302c;display:flex;align-items:center;justify-content:center}
+.rust-logo-tile{height:43px;width:43px;background:#cf432c;display:flex;align-items:center;justify-content:center}
+.rust-logo-tile img{display:block;width:34px;height:34px;object-fit:contain;image-rendering:auto}
+.rust-logo-tile img[hidden]{display:none}
+.rust-logo-fallback{font-family:Impact,sans-serif;font-size:29px;color:#1c1513;font-weight:900}

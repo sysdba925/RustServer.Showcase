@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" type="image/x-icon" href="https://rust.facepunch.com/favicon.ico">
+  <title>RustServer — Sign in</title>
+  <link rel="stylesheet" href="/login.css">
+  <script src="/login.js" defer></script>
+</head>
+<body>
+  <header class="brand">
+    <div class="rust-logo-slot"><div class="rust-logo-tile"><img src="https://rust.facepunch.com/favicon.ico" alt="" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="rust-logo-fallback" hidden>R</span></div></div>
+    <strong>RUSTSERVER <span>PLATFORM</span></strong>
+    <span class="brand-status">AUTHENTICATION</span>
+  </header>
+  <main class="page">
+    <section class="login-card" aria-labelledby="heading">
+      <div class="panel-heading"><span class="marker"></span><h1 id="heading">SERVER ACCESS</h1><span class="environment">RESTRICTED</span></div>
+      <p class="intro">Authenticate to open the RustServer management console.</p>
+
+      <div id="signed-in" class="signed-in" hidden>
+        <p>Signed in as <strong id="current-user"></strong></p>
+        <button class="button primary" id="logout-button" type="button">SIGN OUT</button>
+      </div>
+
+      <form id="login-form" class="login-form">
+        <label for="username">Username</label>
+        <input id="username" name="username" type="text" autocomplete="username" required autofocus>
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required>
+        <button class="button primary" id="login-button" type="submit">SIGN IN</button>
+        <div class="separator"><span>OTHER PROVIDERS</span></div>
+        <div class="provider-row">
+            <a href="/api/auth/google/login" class="button secondary">
+                <img src="https://www.google.com/favicon.ico" width="20" height="20" alt="">
+                GOOGLE
+            </a>
+            <a href="/api/auth/steam/login" class="button secondary">
+                <img src="https://store.steampowered.com/favicon.ico" width="20" height="20" alt="">
+                STEAM
+            </a>
+        </div>
+      </form>
+
+      <p id="status" class="status" role="status" aria-live="polite"></p>
+    </section>
+    <footer>RUSTSERVER AUTH <span>·</span> LOCAL DEVELOPMENT</footer>
+  </main>
+</body>
+</html>

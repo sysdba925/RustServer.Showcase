@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><link rel="icon" type="image/x-icon" href="https://rust.facepunch.com/favicon.ico"><meta charset="utf-8"/><meta content="width=device-width,initial-scale=1" name="viewport"/><title>RustServer | Server Prototype V6</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<style>/* Server-specific content styles, shared shell and button behavior from ../shared */
+
+.server-status{font-weight:800;background:#293c20;color:#b4d783;padding:8px 15px;font-size:13px}
+.server-status.off{background:#392d27;color:#d3b69a}.server-status.starting{background:#403825;color:#f2c56b}
+.actions .lifecycle{min-width:137px;text-align:center;position:relative;text-transform:uppercase;font-weight:850;letter-spacing:.25px}
+.save.working{background:#637b37!important;color:#fff!important;opacity:1!important}
+/* No traveling progress strips or pulsing dots: action state is shown on the button. */
+.lifecycle.working:before,.lifecycle.working:after,.save.working:before,.save.working:after{content:none!important;animation:none!important}
+.lifecycle .button-content{display:inline-flex;align-items:center;justify-content:center;gap:9px;white-space:nowrap}
+.lifecycle .action-spinner{width:15px;height:15px;box-sizing:border-box;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;display:inline-block;vertical-align:middle;animation:server-spin .8s linear infinite;flex:none}
+@keyframes server-spin{to{transform:rotate(360deg)}}
+/* Lifecycle semantics: Start green, Restart neutral, Stop red. */
+.actions #start{background:#597331!important;color:#f5f6ea!important;border-color:#597331!important}
+.actions #start:hover:not(:disabled){background:#739445!important;border-color:#739445!important}
+.actions #stop{background:#9d392e!important;color:#fff0eb!important;border-color:#9d392e!important}
+.actions #stop:hover:not(:disabled){background:#bb493b!important;border-color:#bb493b!important}
+.actions #restart{background:#35332f!important;color:#e9e3d9!important;border-color:#514d46!important}
+.actions #restart:hover:not(:disabled){background:#4c4841!important;border-color:#4c4841!important}
+/* Browser disabled controls keep their own legible color when working. */
+.actions .lifecycle:disabled{cursor:not-allowed;opacity:.42}
+.actions .lifecycle.working:disabled{opacity:1!important;cursor:wait}
+.actions #start.working .action-spinner{color:#bce68d}
+.actions #stop.working .action-spinner{color:#ff9483}
+.actions #restart.working .action-spinner{color:#c6c0b7}
+@media(prefers-reduced-motion:reduce){.lifecycle .action-spinner{animation-duration:1.7s}}
+.server-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.pair{display:flex;justify-content:space-between;gap:15px;border-bottom:1px solid #322e2b;padding:12px 0}.pair:last-child{border:0}
+.server-note{padding:13px 15px;background:#25231f;border-left:3px solid #6b813d;color:#bdb5ad;line-height:1.5;margin-top:14px;font-size:12px}
+.milestone{display:flex;align-items:center;gap:12px;border-bottom:1px solid #322e2b;padding:9px 1px}.milestone:last-child{border:0}
+.milestone .micon{width:15px;color:#84a558}.milestone.wait .micon{color:#746f66}.milestone.active .micon{color:#d7ae5a}
+.formgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.formgrid label{color:#a69d93;font-size:12px;display:grid;gap:6px}
+.formgrid input{width:100%;padding:10px;background:#131211;color:#e9e5dc;border:1px solid #46413c}
+.server-lower{padding:0 26px 22px}.save{margin-top:14px;font-weight:850;position:relative}
+.server-footnote{font-size:12px;color:#a59b91;padding:0 27px 26px}
+.modalveil{display:none;position:fixed;inset:0;z-index:20;align-items:center;justify-content:center;background:#060606b9;backdrop-filter:blur(3px);padding:18px}.modalveil.open{display:flex}
+.modalhead{padding:17px 20px;border-bottom:1px solid #494039;font-size:22px;font-weight:900}.modalbody{padding:20px;line-height:1.5}.modalfoot{padding:14px 20px;border-top:1px solid #494039;display:flex;gap:9px;justify-content:flex-end}
+.modalfoot button{border:0;padding:10px 23px;font-weight:800;background:#32302c;color:#e7e1d9}.modalfoot button:hover{background:#494640}
+.errorbox{background:#3c1713;border:1px solid #de644e;border-left:5px solid #f35e40;color:#ffe2db;padding:16px}.errorbox strong{color:white}.code{font-family:Consolas,monospace;color:#eeb69c;font-size:12px}
+.debug{position:fixed;right:15px;bottom:15px;background:#342719;color:#e5c79a;border:1px dashed #e1a761;z-index:6;padding:13px;width:245px;box-shadow:0 6px 28px #0008;font-size:12px}.debug strong{display:block;letter-spacing:1px;margin-bottom:10px}.debug button{border:0;background:#302d27;color:#e5c79a;font-size:12px;padding:9px;margin:3px 0;width:100%;text-align:left}.debug button:hover{background:#514536}.debug small{color:#cead82;display:block;margin-top:7px}
+.locked .main{pointer-events:none;filter:brightness(.75)}.locked .debug{pointer-events:auto}
+@media(max-width:850px){.server-grid{grid-template-columns:1fr}.server-lower{padding:0 14px 20px}}
+@media(max-width:540px){.formgrid{grid-template-columns:1fr}.server-footnote{padding:0 14px 95px}}
+
+/* Only content-specific geometry is local; controls and indicators use shared CSS. */
+.server-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.server-actions{min-height:74px}
+.milestones{margin-top:12px}
+.milestone .ds-indicator{font-size:13px;color:#d7d1c7}
+@media(max-width:850px){.server-grid{grid-template-columns:1fr}}
+
+/* Server-only content layout; button variants and status markers remain in shared components.css. */
+.runtime-software{margin-top:19px;border-top:1px solid #39342e}
+.runtime-software-item{padding:15px 0;border-bottom:1px solid #39342e}
+.runtime-software-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:15px}
+.runtime-software-head>.ds-indicator{font-size:12px}
+.runtime-versions{display:grid;grid-template-columns:1fr auto;gap:8px;margin:12px 0;color:#bbb1a6;font-size:12px}
+.runtime-versions strong{color:#e1dad0;font-weight:700}
+.runtime-software-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.runtime-software-actions small{color:#a49b90}
+.runtime-software-actions .btn{min-width:135px}
+</style><link href="../shared/theme.css" rel="stylesheet"/><link href="../shared/shell.css" rel="stylesheet"/><link href="../shared/components.css" rel="stylesheet"/></head><body style="margin:0"><div class="shell">
+<script data-page="server" data-part="header" src="../shared/shell.js"></script>
+<div class="wrap"><script data-page="server" data-part="nav" src="../shared/shell.js"></script><main class="main">
+<div class="head"><div class="identity"><span class="h1">Server</span></div></div>
+<div class="actions server-actions" aria-label="Lifecycle controls">
+<button class="btn lifecycle lifecycle-success" id="start"><span class="lifecycle-icon" aria-hidden="true">▶</span><span>START</span></button>
+<button class="btn lifecycle lifecycle-danger" id="stop"><span class="lifecycle-icon" aria-hidden="true">■</span><span>STOP</span></button>
+<button class="btn lifecycle lifecycle-neutral" id="restart"><span class="lifecycle-icon" aria-hidden="true">↻</span><span>RESTART</span></button>
+<div class="ds-indicators" aria-live="polite">
+<span class="ds-indicator" data-state="ok" id="dockerIndicator"><span class="ds-indicator-icon" aria-hidden="true"></span>Docker Running</span>
+<span class="ds-indicator" data-state="ok" id="readyIndicator"><span class="ds-indicator-icon" aria-hidden="true"></span>Rust Ready</span>
+<span class="ds-indicator" data-state="ok" id="availableIndicator"><span class="ds-indicator-icon" aria-hidden="true"></span>Available</span>
+</div></div>
+<div class="panelgrid server-grid">
+<section class="panel"><div class="panelhead"><h2>Runtime</h2></div><div class="panelbody">
+<div class="pair"><span class="muted">Container</span><strong id="containerState">Running</strong></div>
+<div class="pair"><span class="muted">Startup session</span><strong id="session">demo-session-01</strong></div>
+<div class="pair"><span class="muted">Current operation</span><strong id="operation">None</strong></div>
+<div class="server-note">Runtime details are separate from the three readiness indicators above.</div>
+<div class="runtime-software">
+  <div class="runtime-software-item"><div class="runtime-software-head"><strong>Rust</strong><span class="ds-indicator" data-state="wait" id="rustUpdateState"><span class="ds-indicator-icon" aria-hidden="true"></span><span id="rustUpdateLabel">Update available</span></span></div><div class="runtime-versions"><span>Installed</span><strong id="rustInstalled">123456 (demo)</strong><span>Available</span><strong>123457 (demo)</strong></div><div class="runtime-software-actions"><button id="updateRust" class="btn primary" type="button">UPDATE RUST</button><small id="rustUpdateHint">Stop server before updating.</small></div></div>
+  <div class="runtime-software-item"><div class="runtime-software-head"><strong>Oxide</strong><span class="ds-indicator" data-state="wait" id="oxideUpdateState"><span class="ds-indicator-icon" aria-hidden="true"></span><span id="oxideUpdateLabel">Update available</span></span></div><div class="runtime-versions"><span>Installed</span><strong id="oxideInstalled">2.0.6000 (demo)</strong><span>Available</span><strong>2.0.6001 (demo)</strong></div><div class="runtime-software-actions"><button id="updateOxide" class="btn primary" type="button">UPDATE OXIDE</button><small id="oxideUpdateHint">Stop server before updating.</small></div></div>
+</div>
+</div></section>
+<section class="panel"><div class="panelhead"><h2>Startup Tracking</h2><span id="counter" class="mini">9 / 9</span></div><div class="panelbody"><div class="server-note">Nine startup milestones from the API. Available confirms the final log milestone, not an external client connection test.</div><div id="milestones" class="milestones"></div></div></section>
+</div>
+<div class="server-lower"><section class="panel"><div class="panelhead"><h2>Server Configuration</h2><span class="mini">NEXT START / RESTART</span></div><div class="panelbody"><div class="formgrid"><label>Hostname<input value="RustServer EU PvE"></label><label>Description<input value="Community PvE server"></label><label>Max players<input value="20"></label><label>Seed<input value="123456"></label><label>World size<input value="4200"></label><label>Tick rate<input value="30"></label><label>Save interval<input value="300"></label></div><button class="btn primary save" id="save">SAVE CONFIGURATION</button><div class="muted" style="margin-top:9px;font-size:12px">Desired configuration is saved for a future server start. Saving does not restart Rust.</div></div></section></div>
+<p class="server-footnote" id="actionNote">UX prototype · No API requests. Simulated states and nine illustrative milestones.</p>
+</main></div></div>
+<div class="modalveil" id="veil"><div aria-labelledby="modalTitle" aria-modal="true" class="modal" role="dialog"><div class="modalhead" id="modalTitle"></div><div class="modalbody" id="modalBody"></div><div class="modalfoot" id="modalFoot"><button id="modalClose">CLOSE</button></div></div></div><div class="debug"><strong>⚒ DEMO / TEST ONLY</strong><button id="setRunning">Set state: RUNNING</button><button id="setStopped">Set state: STOPPED</button><button id="nextReject">Next action → 409 Conflict</button><button id="nextDelay">Next action → 6s delay</button><button id="nextNetwork">Next action → Network error</button><small>Debug controls are not part of the production design. Default duration: 2.5s.</small></div><script>
+(()=>{
+const $=id=>document.getElementById(id);
+const labels=['Preparing startup','Starting container','Loading server binaries','Initializing Oxide','Loading plugins','Loading configuration','Initializing world','Opening network services','Steam server connection'];
+let running=true, ready=true, completed=9, busy=false, failure='',delay=2500, active=null; const installed={rust:false,oxide:false};
+function indicator(id,state){$(id).dataset.state=state}
+function render(){
+ indicator('dockerIndicator',running?'ok':busy&&active==='start'?'wait':'no');
+ indicator('readyIndicator',ready?'ok':running?'wait':'no');
+ indicator('availableIndicator',ready&&completed===9?'ok':running?'wait':'no');
+ $('start').disabled=busy||running;
+ $('stop').disabled=busy||!running;
+ $('restart').disabled=busy||!ready;
+ $('save').disabled=busy;
+ for(const kind of ['rust','oxide']){
+  const btn=$(kind==='rust'?'updateRust':'updateOxide');
+  const state=$(kind+'UpdateState'), label=$(kind+'UpdateLabel'), hint=$(kind+'UpdateHint');
+  btn.disabled=busy||running||installed[kind];
+  btn.hidden=installed[kind];
+  state.dataset.state=installed[kind]?'ok':'wait';
+  label.textContent=installed[kind]?'Up to date':'Update available';
+  hint.textContent=installed[kind]?'Installed version matches available.':running?'Stop server before updating.':busy?'Operation in progress.':'Server stopped — update can be requested.';
+ }
+ $('counter').textContent=completed+' / 9';
+ $('containerState').textContent=running?'Running':'Stopped';
+ $('session').textContent=running?'demo-session-01':'—';
+ $('operation').textContent=busy?({start:'Starting',stop:'Stopping',restart:'Restarting',save:'Saving configuration'}[active]):'None';
+ $('milestones').innerHTML=labels.map((label,i)=>{
+  const state=i<completed?'ok':busy&&active!=='stop'&&i===completed?'wait':'unknown';
+  const icon=state==='ok'?'✓':state==='wait'?'◔':'○';
+  return '<div class="milestone"><span class="ds-indicator" data-state="'+state+'"><span class="ds-indicator-icon" aria-hidden="true"></span><span>'+label+'</span></span></div>';
+ }).join('');
+}
+function modal(title,html){$('modalTitle').textContent=title;$('modalBody').innerHTML=html;$('veil').classList.add('open')}
+function finish(){busy=false;active=null;document.body.classList.remove('locked');for(const id of ['start','stop','restart','save']){const b=$(id);b.classList.remove('working');b.removeAttribute('aria-busy');b.innerHTML={start:'<span class="lifecycle-icon" aria-hidden="true">▶</span><span>START</span>',stop:'<span class="lifecycle-icon" aria-hidden="true">■</span><span>STOP</span>',restart:'<span class="lifecycle-icon" aria-hidden="true">↻</span><span>RESTART</span>',save:'SAVE CONFIGURATION'}[id]}render()}
+async function action(id){
+ if(busy||$(id).disabled)return;
+ busy=true;active=id;
+ const before={running,ready,completed};const fail=failure;failure='';
+ const b=$(id);b.classList.add('working');b.setAttribute('aria-busy','true');
+ if(id==='save')b.textContent='SAVING…';else b.innerHTML='<span class="button-content"><span class="action-spinner" aria-hidden="true"></span><span>'+{start:'STARTING…',stop:'STOPPING…',restart:'RESTARTING…'}[id]+'</span></span>';
+ document.body.classList.add('locked');
+ if(id==='start'||id==='restart'){running=true;ready=false;completed=0}
+ if(id==='stop'){ready=false}
+ render();
+ const steps=(id==='start'||id==='restart')?9:0;const stepDelay=steps?Math.min(450,delay/10):0;
+ for(let i=0;i<steps;i++){await new Promise(r=>setTimeout(r,stepDelay));completed=i+1;render()}
+ await new Promise(r=>setTimeout(r,Math.max(0,delay-stepDelay*steps)));
+ if(fail){({running,ready,completed}=before);finish();modal('OPERATION REJECTED','<div class="errorbox"><strong>'+ (fail==='network'?'NETWORK ERROR':'409 · CONFLICT')+'</strong><p>'+ (fail==='network'?'Operation outcome is unknown. Refresh status before retrying.':'A conflicting operation blocked the requested command.')+'</p></div>');return}
+ if(id==='stop'){running=false;ready=false;completed=0}
+ if(id==='start'||id==='restart'){running=true;ready=true;completed=9}
+ finish();
+}
+async function requestUpdate(kind){
+ if(busy||running||installed[kind])return;
+ busy=true;active='update'+kind; const fail=failure;failure='';
+ const btn=$(kind==='rust'?'updateRust':'updateOxide');
+ btn.classList.add('working');btn.setAttribute('aria-busy','true');
+ btn.innerHTML='<span class="button-content"><span class="action-spinner" aria-hidden="true"></span><span>UPDATING '+kind.toUpperCase()+'…</span></span>';
+ document.body.classList.add('locked');$('operation').textContent=kind.toUpperCase()+' update · Pending';render();
+ await new Promise(r=>setTimeout(r,Math.min(delay,1200)));
+ if(fail){busy=false;active=null;document.body.classList.remove('locked');btn.classList.remove('working');btn.removeAttribute('aria-busy');btn.textContent='UPDATE '+kind.toUpperCase();render();modal('UPDATE REJECTED','<div class="errorbox"><strong>'+(fail==='network'?'NETWORK ERROR':'409 · CONFLICT')+'</strong><p>'+(fail==='network'?'Update outcome could not be confirmed. Refresh operation status before retrying.':'Server must be stopped and no conflicting mutation may be active.')+'</p></div>');return}
+ $('operation').textContent=kind.toUpperCase()+' update · Running';
+ await new Promise(r=>setTimeout(r,Math.max(400,delay-1200)));
+ installed[kind]=true;$(kind+'Installed').textContent=kind==='rust'?'123457 (demo)':'2.0.6001 (demo)';
+ busy=false;active=null;btn.classList.remove('working');btn.removeAttribute('aria-busy');btn.textContent='UPDATE '+kind.toUpperCase();document.body.classList.remove('locked');$('operation').textContent=kind.toUpperCase()+' update · Succeeded';render();
+}
+for(const kind of ['rust','oxide'])$(kind==='rust'?'updateRust':'updateOxide').addEventListener('click',()=>requestUpdate(kind));
+for(const id of ['start','stop','restart','save'])$(id).addEventListener('click',()=>action(id));
+$('modalClose').onclick=()=>$('veil').classList.remove('open');
+$('setRunning').onclick=()=>{if(busy)return;running=true;ready=true;completed=9;render()};
+$('setStopped').onclick=()=>{if(busy)return;running=false;ready=false;completed=0;render()};
+$('nextReject').onclick=()=>{failure='conflict';$('nextReject').textContent='✓ Next: 409 Conflict'};
+$('nextDelay').onclick=()=>{delay=6000;$('nextDelay').textContent='✓ Next: 6s delay'};
+$('nextNetwork').onclick=()=>{failure='network';$('nextNetwork').textContent='✓ Next: network error'};
+render();
+})();
+</script></body></html>

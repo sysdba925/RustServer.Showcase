@@ -1,0 +1,29 @@
+[Unit]
+Description=RustServer Plugins API
+Wants=network-online.target
+After=network-online.target rustserver-control.service
+
+[Service]
+Type=exec
+User=rustserver-plugins
+Group=rustserver-plugins
+WorkingDirectory=/opt/rustserver/plugins/current
+Environment=DOTNET_ENVIRONMENT=Production
+Environment=ASPNETCORE_ENVIRONMENT=Production
+EnvironmentFile=/etc/rustserver/topology.env
+EnvironmentFile=/etc/rustserver/rust-server.env
+Environment=PluginManagement__StateRootPath=/var/lib/rustserver/plugins
+Environment=PluginManagement__OperationHistory__DatabasePath=/var/lib/rustserver/plugins/operations.db
+Environment=PluginManagement__Repositories__Plugins__WorkspacePath=/var/lib/rustserver/plugins/workspaces/plugins
+Environment=PluginManagement__Repositories__Configs__WorkspacePath=/var/lib/rustserver/plugins/workspaces/configs
+ExecStart=/bin/bash -ec 'export PluginManagement__Runtime__ServerRootPath="$$RUST_SERVER_PATH"; exec /usr/bin/dotnet /opt/rustserver/plugins/current/RustServer.Plugins.dll'
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=30s
+UMask=0007
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

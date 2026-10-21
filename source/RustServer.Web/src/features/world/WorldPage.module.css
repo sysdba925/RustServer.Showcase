@@ -1,0 +1,106 @@
+/* World V1 — same Rust graphite/olive square geometry as Server/Plugins. */
+.page { width: min(100%, 90rem); margin: 0 auto; color: var(--color-text); font-family: "Roboto Condensed", "Arial Narrow", "Segoe UI", sans-serif; }
+.pageHeader { min-height: 4rem; display: flex; align-items: center; padding: 0 var(--space-1) var(--space-4); }
+.pageHeader h1 { margin: 0; font-size: clamp(1.75rem, 3vw, 2.25rem); line-height: 1.15; font-weight: 900; letter-spacing: .02em; text-transform: uppercase; }
+.worldGrid { display: grid; grid-template-columns: minmax(19.375rem, .92fr) minmax(26.25rem, 1.25fr); gap: 1.125rem; padding: var(--space-4) var(--space-1) var(--space-5); align-items: start; }
+.worldStack { display: grid; gap: 1.125rem; min-width: 0; }
+.snapshotColumn { min-width: 0; }
+.card { min-width: 0; background: #181817; border: 1px solid #35332f; border-radius: 0; overflow: hidden; }
+.cardHeader { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; min-height: 3.15rem; padding: .85rem 1.125rem; background: #1b1a18; border-bottom: 1px solid #36332e; }
+.cardHeader h2, .cardHeader h3 { margin: 0; font-size: 1rem; line-height: 1.25; letter-spacing: .035em; font-weight: 900; text-transform: uppercase; }
+.cardBody { min-width: 0; padding: 1.05rem 1.125rem 1.125rem; }
+.chip { color: #bbb4a8; font-size: .75rem; font-weight: 800; white-space: nowrap; letter-spacing: .02em; }
+.headerTools { display: flex; align-items: center; gap: .65rem; flex-wrap: wrap; }
+.status { display: inline-flex; align-items: center; gap: .4rem; font-size: .76rem; font-weight: 850; text-transform: uppercase; color: #ded8cf; white-space: nowrap; }
+.status::before { content: "◷"; color: #e1b25c; font: 900 1rem Arial, sans-serif; }
+.status[data-tone="ok"]::before { content: "✓"; color: #9bbd61; }
+.status[data-tone="off"]::before { content: "×"; color: #e77660; }
+.status[data-tone="warn"]::before { content: "!"; color: #e1b25c; }
+.note, .muted { color: #aba59d; font-size: .8rem; line-height: 1.5; }
+.note { margin: 0 0 .95rem; }
+.muted { margin: .6rem 0; }
+.notice { padding: .65rem .75rem; background: #30281e; color: #e2c189; border-left: 3px solid #9a793c; font-size: .8rem; line-height: 1.5; margin: .6rem 0; }
+.error { border-left: 4px solid #e46d51; background: #381c17; color: #f8d3ca; padding: .65rem .75rem; font-size: .8rem; line-height: 1.5; margin: .65rem 0; overflow-wrap: anywhere; }
+.success { border-left: 3px solid #799a47; background: #25301e; color: #b3d580; padding: .6rem .75rem; font-size: .8rem; line-height: 1.5; margin: .65rem 0; }
+.innerPanel { min-width: 0; padding: 0; margin: 0; background: transparent; border: 0; border-radius: 0; min-height: 0; }
+.fieldGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .7rem; margin: 0; }
+.field { display: grid; align-content: start; gap: .35rem; min-width: 0; color: #b5b0a6; font-size: .78rem; font-weight: 750; }
+.field input { width: 100%; min-width: 0; padding: .62rem; color: #eee; background: #121211; border: 1px solid #50483f; border-radius: 0; font: inherit; font-size: .9rem; }
+.field input:focus-visible, .actions button:focus-visible, .headerTools button:focus-visible, .snapshotButtons button:focus-visible, .snapshotRowActions button:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+.effective { margin: .1rem 0 0; font-size: .76rem; color: #e2c189; font-weight: 500; }
+.configurationForm { display: grid; gap: .7rem; margin: 0; }
+.actions, .snapshotButtons { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem; margin: .75rem 0 0; }
+.actions button, .snapshotButtons button, .headerTools button, .snapshotRowActions button { min-height: 2.25rem; padding: .48rem .85rem; border: 1px solid #403d37; border-radius: 0; background: #33312c; color: #eae4db; font-family: inherit; font-size: .8rem; font-weight: 850; letter-spacing: .015em; text-transform: uppercase; cursor: pointer; }
+.actions button:not(:disabled):hover, .snapshotButtons button:not(:disabled):hover, .headerTools button:not(:disabled):hover, .snapshotRowActions button:not(:disabled):hover { background: #555149; border-color: #555149; }
+.actions button:disabled, .snapshotButtons button:disabled, .headerTools button:disabled, .snapshotRowActions button:disabled { opacity: .42; cursor: not-allowed; }
+.actions .primary, .snapshotButtons .primary { background: #647e38; border-color: #647e38; color: #f6f9ea; }
+.actions .primary:not(:disabled):hover, .snapshotButtons .primary:not(:disabled):hover { background: #87a94c; border-color: #87a94c; color: #10140b; }
+.actions .danger, .snapshotRowActions .danger { background: #91382e; border-color: #91382e; color: #fff; }
+.actions .danger:not(:disabled):hover, .snapshotRowActions .danger:not(:disabled):hover { background: #b44b3c; border-color: #b44b3c; }
+.wipePolicies { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .6rem; margin: 0; }
+.wipePolicy { min-width: 0; margin: 0; padding: .75rem; border: 1px solid #464038; border-radius: 0; }
+.wipePolicy legend { padding: 0 .2rem; color: #e5ded5; font-weight: 850; font-size: .85rem; }
+.wipePolicy label { display: flex; align-items: center; gap: .5rem; margin: .6rem 0; color: #d4d0c9; cursor: pointer; font-size: .85rem; }
+.wipePolicy input { accent-color: #799a47; }
+.sectionDivider { border-top: 1px solid #39352e; margin-top: 1rem; padding-top: .85rem; }
+.subHeading { margin: 0 0 .6rem; font-size: .85rem; font-weight: 900; text-transform: uppercase; }
+.detailRows { display: grid; margin: 0; gap: 0; }
+.detailRows > div { display: flex; justify-content: space-between; align-items: baseline; gap: .75rem; padding: .55rem 0; border-bottom: 1px solid #34302b; font-size: .8rem; }
+.detailRows > div dt { color: #aba59d; }
+.detailRows > div dd { margin: 0; text-align: right; color: #e7e1d8; font-weight: 700; overflow-wrap: anywhere; }
+.confirmation { padding: .85rem; margin: .75rem 0; background: #29241f; border-left: 3px solid #b95540; }
+.confirmation h4 { margin: 0 0 .5rem; font-size: .95rem; text-transform: uppercase; }
+.confirmation p { margin: .5rem 0; color: #d4cdc2; font-size: .85rem; line-height: 1.5; }
+.confirmation dl { margin: .65rem 0; }
+.empty { border: 1px dashed #51483e; padding: 1.6rem .8rem; margin: .7rem 0; text-align: center; color: #b8b0a4; font-size: .82rem; }
+.snapshotButtons { margin-top: 0; margin-bottom: .9rem; }
+.snapshotTableWrap { overflow-x: auto; width: 100%; margin: .5rem 0; }
+.snapshotTable { width: 100%; min-width: 29rem; border-collapse: collapse; text-align: left; font-size: .81rem; }
+.snapshotTable th { background: #111110; color: #aaa49b; font-size: .72rem; text-transform: uppercase; font-weight: 850; }
+.snapshotTable th, .snapshotTable td { border-bottom: 1px solid #36312c; padding: .65rem .5rem; }
+.snapshotTable tbody tr:hover { background: #292721; }
+.snapshotTable th:last-child, .snapshotTable td:last-child { text-align: right; }
+.snapshotRowActions { display: flex; justify-content: flex-end; gap: .35rem; flex-wrap: wrap; }
+.snapshotRowActions button { min-height: 2rem; padding: .36rem .6rem; font-size: .74rem; white-space: nowrap; }
+@media (max-width: 70rem) { .worldGrid { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 46rem) { .worldGrid { padding: var(--space-3) 0 var(--space-5); } .cardBody, .cardHeader { padding-inline: var(--space-3); } }
+@media (max-width: 34rem) { .fieldGrid, .wipePolicies { grid-template-columns: 1fr; } .snapshotRowActions { flex-direction: column; } .snapshotTable { min-width: 25rem; } }
+
+/* World V1 destructive confirmations are overlays; legacy component layout is unchanged. */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.125rem;
+  background: #090807d8;
+  backdrop-filter: blur(3px);
+}
+
+.modalDialog {
+  width: min(33.75rem, 100%);
+  max-height: min(85vh, 50rem);
+  overflow: auto;
+  padding: 0 1.15rem 1rem;
+  background: #1b1917;
+  border: 1px solid #635d52;
+  border-radius: 0;
+  color: #e8e2d8;
+  box-shadow: 0 20px 70px #000b;
+}
+
+.modalDialog h4 {
+  margin: 0 -1.15rem 1rem;
+  padding: 1rem 1.15rem;
+  background: #292620;
+  border-bottom: 1px solid #494239;
+  text-transform: uppercase;
+  font-size: 1.1rem;
+  font-weight: 900;
+}
+
+.modalDialog p { margin: .65rem 0; font-size: .88rem; line-height: 1.55; color: #d8d0c5; }
+.modalDialog .actions { justify-content: flex-end; border-top: 1px solid #494239; padding-top: .85rem; }
+.modalDialog .detailRows { margin: .75rem 0; }

@@ -1,0 +1,14 @@
+[Unit]
+Description=Recover interrupted RustServer Updater deployments
+DefaultDependencies=no
+After=local-fs.target
+Before=rustserver-updater.service
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/usr/bin/dotnet /opt/rustserver/updater/current/executor/RustServer.Updater.Executor.dll --recover
+NoNewPrivileges=no
+PrivateTmp=yes
+

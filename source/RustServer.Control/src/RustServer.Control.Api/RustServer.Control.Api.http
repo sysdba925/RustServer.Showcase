@@ -1,0 +1,25 @@
+@RustServer.Control.Api_HostAddress = {{RUSTSERVER_CONTROL_URL}}
+
+GET {{RustServer.Control.Api_HostAddress}}/api/server/status
+Accept: application/json
+
+###
+
+POST {{RustServer.Control.Api_HostAddress}}/api/server/start
+
+###
+
+POST {{RustServer.Control.Api_HostAddress}}/api/server/stop
+
+###
+
+POST {{RustServer.Control.Api_HostAddress}}/api/server/restart
+
+###
+
+POST {{RustServer.Control.Api_HostAddress}}/api/server/update
+
+###
+
+@operationId = replace-with-operation-id
+GET {{RustServer.Control.Api_HostAddress}}/api/operations/{{operationId}}

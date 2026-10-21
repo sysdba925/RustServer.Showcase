@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+option csharp_namespace = "RustServer.Rcon.Grpc";
+
+package rustserver.rcon.v1;
+
+import "google/api/annotations.proto";
+
+// Provides internal access to Rust WebRCON operations.
+service RconService {
+  // Executes a command through Rust WebRCON.
+  rpc ExecuteCommand(ExecuteCommandRequest) returns (ExecuteCommandResponse) {
+    option (google.api.http) = {
+      post: "/v1/rcon:execute"
+      body: "*"
+    };
+  }
+
+  // Returns the Rust WebRCON connection status.
+  rpc GetConnectionStatus(GetConnectionStatusRequest) returns (GetConnectionStatusResponse) {
+    option (google.api.http) = {
+      get: "/v1/rcon/connection-status"
+    };
+  }
+}
+
+// Command submitted for execution through Rust WebRCON.
+message ExecuteCommandRequest {
+  // The Rust console command to execute.
+  string command = 1;
+}
+
+// Response returned after executing a Rust console command.
+message ExecuteCommandResponse {
+  // The Rust console command response.
+  string response = 1;
+}
+
+// Request to inspect the Rust WebRCON connection status.
+message GetConnectionStatusRequest {
+}
+
+// Rust WebRCON connection status.
+message GetConnectionStatusResponse {
+  // The current connection state.
+  ConnectionState state = 1;
+
+  // Optional state detail intended for operators.
+  string detail = 2;
+}
+
+// Possible Rust WebRCON connection states.
+enum ConnectionState {
+  CONNECTION_STATE_UNSPECIFIED = 0;
+  CONNECTION_STATE_CONNECTED = 1;
+  CONNECTION_STATE_DISCONNECTED = 2;
+}

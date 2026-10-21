@@ -1,0 +1,32 @@
+/* Shared RustServer prototype theme — sourced from Plugins V12 */
+:root{font-family:Inter,Segoe UI,system-ui,sans-serif;color:#dfe6f0;background:#10151e;font-size:14px}
+*{box-sizing:border-box}
+button{cursor:pointer}
+button:disabled{opacity:.42;cursor:not-allowed}
+.muted{color:#95a5ba}
+.head{min-height:82px;display:flex;align-items:center;justify-content:space-between;padding:18px 27px;gap:15px;flex-wrap:wrap}
+.identity{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.h1{font-size:26px;font-weight:660;margin-right:15px}
+.right{margin-left:auto}
+.smallspacer{height:7px}
+@media (max-width:850px){
+.head{padding:17px}
+}
+@media (max-width:540px){
+.h1{font-size:22px}
+}
+.modegroup{display:flex;gap:9px;flex-wrap:wrap}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tooltip{font-size:11px;color:#9cabc0}
+.histrow{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:8px;align-items:center;padding:11px 8px;border-bottom:1px solid #354456}
+.histrow.headrow{font-size:11px;color:#9aacc3}
+@media (max-width:650px){
+.histrow{grid-template-columns:1fr 1fr}
+}
+:root{font-family:Arial Narrow,Roboto Condensed,Segoe UI,system-ui,sans-serif;color:#d4d2ce;background:#0c0c0b;letter-spacing:.1px}
+body{background:radial-gradient(ellipse at 8% 90%,#27130f 0%,transparent 34%),#0d0d0c}
+.rust-symbol{font-size:25px;font-weight:900;color:#211611;line-height:1}
+.asset-label{font-size:6px;font-weight:900;letter-spacing:.5px;color:#231511;text-align:center;line-height:1.1}
+.head{background:#111110}
+.h1{font-weight:900;text-transform:uppercase;letter-spacing:.5px}
+:root{font-family:"Roboto Condensed","Arial Narrow",Impact,sans-serif;font-stretch:condensed}

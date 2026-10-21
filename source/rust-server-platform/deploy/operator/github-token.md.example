@@ -1,0 +1,40 @@
+
+#### GitHub bootstrap token
+```
+my_token1
+```
+
+
+#### GitHub updater all services token
+```
+my_token2
+```
+
+
+#### GitHub plugin & config token
+```
+my_token3
+```
+
+
+
+
+#### ADMIN_USERNAME
+```
+my_login
+```
+
+#### ADMIN_PASSWORD
+```
+my_password
+```
+
+#### GOOGLE_CLIENT_ID
+```
+my_client_id
+```
+
+#### GOOGLE_CLIENT_SECRET
+```
+my_secret
+```

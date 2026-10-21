@@ -1,0 +1,8 @@
+# Fail-closed boot guard. Independent of Docker and Rust readiness.
+# Protect both direct host sockets and Docker-published UDP ports.
+destroy table inet rsc_network_access
+add table inet rsc_network_access
+add chain inet rsc_network_access input { type filter hook input priority -1; policy accept; }
+add chain inet rsc_network_access forward { type filter hook forward priority -1; policy accept; }
+add rule inet rsc_network_access input udp dport { 28015, 28017 } drop
+add rule inet rsc_network_access forward meta l4proto udp ct original proto-dst { 28015, 28017 } drop

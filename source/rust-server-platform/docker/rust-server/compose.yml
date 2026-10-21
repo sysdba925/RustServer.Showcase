@@ -1,0 +1,32 @@
+services:
+  rust-server:
+    image: cm2network/steamcmd:latest
+    working_dir: /server
+    volumes:
+      - "${RUST_SERVER_PATH:?Set RUST_SERVER_PATH in /etc/rustserver/rust-server.env}:/server"
+      - "./scripts/start-rust.sh:/scripts/start-rust.sh:ro"
+    secrets:
+      - source: rust_server_rcon_password
+        target: rust_server_rcon_password
+    ports:
+      - "${RUST_SERVER_PORT:-28015}:${RUST_SERVER_PORT:-28015}/udp"
+      - "${RUST_SERVER_QUERY_PORT:-28017}:${RUST_SERVER_QUERY_PORT:-28017}/udp"
+      - "127.0.0.1:${RUST_SERVER_RCON_PORT:?Set RUSTSERVER_RCON_URL in /etc/rustserver/topology.env}:${RUST_SERVER_RCON_PORT:?Set RUSTSERVER_RCON_URL in /etc/rustserver/topology.env}/tcp"
+    environment:
+      RUST_SERVER_PORT: "${RUST_SERVER_PORT:-28015}"
+      RUST_SERVER_QUERY_PORT: "${RUST_SERVER_QUERY_PORT:-28017}"
+      RUST_SERVER_RCON_PORT: "${RUST_SERVER_RCON_PORT:?Set RUSTSERVER_RCON_URL in /etc/rustserver/topology.env}"
+      RUST_SERVER_LEVEL: "${RUST_SERVER_LEVEL:-Procedural Map}"
+      RUST_SERVER_SEED: "${RUST_SERVER_SEED:-}"
+      RUST_SERVER_WORLD_SIZE: "${RUST_SERVER_WORLD_SIZE:-3500}"
+      RUST_SERVER_MAX_PLAYERS: "${RUST_SERVER_MAX_PLAYERS:-50}"
+      RUST_SERVER_HOSTNAME: "${RUST_SERVER_HOSTNAME:-Rust Server}"
+      RUST_SERVER_DESCRIPTION: "${RUST_SERVER_DESCRIPTION:-}"
+      RUST_SERVER_TICK_RATE: "${RUST_SERVER_TICK_RATE:-30}"
+      RUST_SERVER_SAVE_INTERVAL: "${RUST_SERVER_SAVE_INTERVAL:-600}"
+      RUST_SERVER_IDENTITY: "${RUST_SERVER_IDENTITY:-rust-server}"
+    entrypoint: ["/bin/bash", "/scripts/start-rust.sh"]
+
+secrets:
+  rust_server_rcon_password:
+    file: /etc/rustserver/rcon-password

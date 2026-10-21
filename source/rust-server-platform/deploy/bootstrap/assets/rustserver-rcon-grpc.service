@@ -1,0 +1,27 @@
+[Unit]
+Description=RustServer Rcon gRPC service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=exec
+User=rustserver-rcon
+Group=rustserver-rcon
+WorkingDirectory=/opt/rustserver/rcon/current
+Environment=DOTNET_ENVIRONMENT=Production
+Environment=ASPNETCORE_ENVIRONMENT=Production
+EnvironmentFile=/etc/rustserver/topology.env
+LoadCredential=rcon-password:/etc/rustserver/rcon-password
+ExecStart=/bin/bash -ec 'IFS= read -r RustServerRcon__Password < "$$CREDENTIALS_DIRECTORY/rcon-password" || true; test -n "$$RustServerRcon__Password"; export RustServerRcon__Password; exec /usr/bin/dotnet /opt/rustserver/rcon/current/RustServer.Rcon.Grpc.dll'
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=30s
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+InaccessiblePaths=/etc/rustserver/rcon-password
+
+[Install]
+WantedBy=multi-user.target

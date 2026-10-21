@@ -1,0 +1,44 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A181A51D-1327-440B-9B80-2A12C820957E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RustServer.PluginCatalog.Api", "src\RustServer.PluginCatalog.Api\RustServer.PluginCatalog.Api.csproj", "{E1CF8CF8-23F5-4F23-977C-C86C3CDB467C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0C55A504-887A-4CA0-BFED-CB003917B4AE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RustServer.PluginCatalog.Api.Tests", "tests\RustServer.PluginCatalog.Api.Tests\RustServer.PluginCatalog.Api.Tests.csproj", "{664F6110-4D7F-4CA4-8AB7-CDB595D68EDF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{5A7A3A6C-9F99-4D17-920B-9F550F0C4F5D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RustServer.PluginCatalog.DevSchema", "tools\RustServer.PluginCatalog.DevSchema\RustServer.PluginCatalog.DevSchema.csproj", "{78B03A16-1153-4228-B343-13F26C709B2A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E1CF8CF8-23F5-4F23-977C-C86C3CDB467C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1CF8CF8-23F5-4F23-977C-C86C3CDB467C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1CF8CF8-23F5-4F23-977C-C86C3CDB467C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1CF8CF8-23F5-4F23-977C-C86C3CDB467C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{664F6110-4D7F-4CA4-8AB7-CDB595D68EDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{664F6110-4D7F-4CA4-8AB7-CDB595D68EDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{664F6110-4D7F-4CA4-8AB7-CDB595D68EDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{664F6110-4D7F-4CA4-8AB7-CDB595D68EDF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78B03A16-1153-4228-B343-13F26C709B2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78B03A16-1153-4228-B343-13F26C709B2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78B03A16-1153-4228-B343-13F26C709B2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78B03A16-1153-4228-B343-13F26C709B2A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E1CF8CF8-23F5-4F23-977C-C86C3CDB467C} = {A181A51D-1327-440B-9B80-2A12C820957E}
+		{664F6110-4D7F-4CA4-8AB7-CDB595D68EDF} = {0C55A504-887A-4CA0-BFED-CB003917B4AE}
+		{78B03A16-1153-4228-B343-13F26C709B2A} = {5A7A3A6C-9F99-4D17-920B-9F550F0C4F5D}
+	EndGlobalSection
+EndGlobal

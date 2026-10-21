@@ -1,0 +1,8 @@
+services:
+  oxide:
+    image: alpine:3.24
+    volumes:
+      - "${RUST_SERVER_PATH:?Set RUST_SERVER_PATH in the Control service environment}:/server"
+      - "./scripts/update-oxide.sh:/scripts/update-oxide.sh:ro"
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["apk add --no-cache ca-certificates curl unzip && exec /bin/sh /scripts/update-oxide.sh"]

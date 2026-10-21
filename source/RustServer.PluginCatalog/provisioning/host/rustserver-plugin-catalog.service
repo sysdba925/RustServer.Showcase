@@ -1,0 +1,21 @@
+[Unit]
+Description=RustServer Plugin Catalog API
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=@SERVICE_USER@
+Group=@SERVICE_USER@
+WorkingDirectory=/opt/rustserver/plugin-catalog/current
+EnvironmentFile=/etc/rustserver/plugin-catalog/plugin-catalog.env
+ExecStart=/usr/bin/dotnet /opt/rustserver/plugin-catalog/current/RustServer.PluginCatalog.Api.dll
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,13 @@
+[Unit]
+Description=RustServer Updater deployment executor socket
+
+[Socket]
+ListenStream=/run/rustserver-deployment-executor.sock
+Accept=yes
+SocketUser=root
+SocketGroup=rustserver-updater
+SocketMode=0660
+RemoveOnStop=yes
+
+[Install]
+WantedBy=sockets.target

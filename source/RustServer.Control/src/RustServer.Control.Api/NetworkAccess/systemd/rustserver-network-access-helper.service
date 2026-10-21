@@ -1,0 +1,38 @@
+[Unit]
+Description=RustServer.Control NetworkAccess privileged helper
+Wants=network-online.target
+After=network-online.target
+Before=docker.service rustserver-control.service
+
+[Service]
+Type=exec
+User=root
+Group=rustserver-control
+WorkingDirectory=/opt/rustserver/control/current
+RuntimeDirectory=rustserver-network-access
+RuntimeDirectoryMode=0750
+UMask=0007
+Environment=NetworkAccess__HelperSocketPath=/run/rustserver-network-access/network-access-helper.sock
+ExecStartPre=/usr/sbin/nft -f /opt/rustserver/control/current/network-access/nftables/rustserver-network-access-guard.nft
+ExecStart=/usr/bin/dotnet /opt/rustserver/control/current/RustServer.Control.Api.dll --network-access-helper
+ExecStopPost=/usr/sbin/nft -f /opt/rustserver/control/current/network-access/nftables/rustserver-network-access-guard.nft
+Restart=on-failure
+RestartSec=2s
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectHome=true
+ProtectSystem=strict
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+ProtectControlGroups=true
+LockPersonality=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_UNIX AF_NETLINK
+SystemCallArchitectures=native
+CapabilityBoundingSet=CAP_NET_ADMIN CAP_DAC_OVERRIDE
+ReadWritePaths=/run/rustserver-network-access
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,147 @@
+﻿
+@{
+    Layout = null;
+    ViewData["Title"] = "RustServer — Portal";
+}
+
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <link rel="icon" type="image/x-icon" href="https://rust.facepunch.com/favicon.ico">
+    <title>RustServer — Portal</title>
+    <link rel="stylesheet" href="/login.css">
+</head>
+<body class="admin-portal">
+    <header class="brand">
+        <div class="rust-logo-slot">
+            <div class="rust-logo-tile">
+                <img src="https://rust.facepunch.com/favicon.ico" alt=""
+                     onerror="this.hidden=true;this.nextElementSibling.hidden=false">
+                <span class="rust-logo-fallback" hidden>R</span>
+            </div>
+        </div>
+        <strong>RUSTSERVER <span>PLATFORM</span></strong>
+        <span class="brand-status">ADMINISTRATION</span>
+    </header>
+
+    <main class="page">
+        <section class="login-card" aria-labelledby="heading">
+            <div class="panel-heading">
+                <span class="marker"></span>
+                <h1 id="heading">SERVER ACCESS</h1>
+                <span class="environment">ADMIN</span>
+            </div>
+
+            <p class="intro">
+                Signed in as <strong id="current-user"></strong>. Choose your destination.
+            </p>
+
+            <nav class="portal-actions" aria-label="Portal destinations">
+                <a href="/player" class="button portal-player">
+                    PLAYER PORTAL
+                </a>
+
+                <a href="/dashboard" class="button portal-admin">
+                    ADMIN DASHBOARD
+                </a>
+            </nav>
+
+            <section class="provider-links" aria-labelledby="provider-links-heading">
+                <div class="separator">
+                    <span id="provider-links-heading">LINKED PROVIDERS</span>
+                </div>
+                <div id="provider-links" class="provider-row" aria-live="polite"></div>
+            </section>
+
+            <div class="portal-footer">
+                <button class="button portal-danger" id="logout-button" type="button">
+                    SIGN OUT
+                </button>
+            </div>
+
+            <p id="status" class="status" role="status" aria-live="polite"></p>
+        </section>
+
+        <footer>
+            RUSTSERVER AUTH <span>·</span> LOCAL DEVELOPMENT
+        </footer>
+    </main>
+
+    <script>
+        async function refreshUser() {
+            const response = await fetch('/api/auth/me', {
+                credentials: 'same-origin',
+                cache: 'no-store'
+            });
+
+            if (!response.ok) {
+                window.location.replace('/login');
+                return;
+            }
+
+            const user = await response.json();
+            document.querySelector('#current-user').textContent = user.userName;
+
+            const providerLinks = document.querySelector('#provider-links');
+            providerLinks.replaceChildren(
+                createProviderElement('Google', user.googleLinked, '/api/auth/google/link'),
+                createProviderElement('Steam', user.steamLinked, '/api/auth/steam/link'));
+        }
+
+        function createProviderElement(name, linked, linkUrl) {
+            if (linked) {
+                const status = document.createElement('span');
+                status.className = 'linked-provider';
+                status.textContent = `${name} linked`;
+                return status;
+            }
+
+            const link = document.createElement('a');
+            link.className = 'button secondary';
+            link.href = linkUrl;
+            link.textContent = `Link ${name}`;
+            return link;
+        }
+
+        document.querySelector('#logout-button').addEventListener('click', async () => {
+            const status = document.querySelector('#status');
+            const button = document.querySelector('#logout-button');
+
+            button.disabled = true;
+
+            try {
+                const csrfResponse = await fetch('/api/auth/csrf', {
+                    credentials: 'same-origin'
+                });
+
+                if (!csrfResponse.ok)
+                    throw new Error('Cannot prepare logout.');
+
+                const { token } = await csrfResponse.json();
+
+                const response = await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'X-CSRF-TOKEN': token }
+                });
+
+                if (!response.ok)
+                    throw new Error('Sign out failed.');
+
+                window.location.replace('/login');
+            } catch {
+                status.textContent = 'Sign out failed. Please try again.';
+                button.disabled = false;
+            }
+        });
+
+        refreshUser().catch(() => {
+            document.querySelector('#status').textContent =
+                'Could not load account information. Please refresh the page.';
+        });
+    </script>
+</body>
+</html>

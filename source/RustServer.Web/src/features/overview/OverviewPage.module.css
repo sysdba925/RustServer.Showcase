@@ -1,0 +1,312 @@
+/* Overview V5, using Server V7 / Plugins V15 Rust dark visual language. */
+.page {
+  width: min(100%, 90rem);
+  margin: 0 auto;
+  color: var(--color-text);
+  font-family: "Roboto Condensed", "Arial Narrow", "Segoe UI", sans-serif;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  min-height: 4rem;
+  padding: 0 var(--space-1) var(--space-4);
+}
+
+.pageHeader h1 {
+  margin: 0;
+  font-size: clamp(1.75rem, 3vw, 2.25rem);
+  font-weight: 900;
+  letter-spacing: .02em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 1.2rem;
+  padding: var(--space-2) var(--space-1) var(--space-5);
+}
+
+.section {
+  grid-column: 1 / -1;
+  min-width: 0;
+}
+
+.sectionTitle {
+  margin: 0 0 .65rem;
+  color: #aaa39a;
+  font-size: .75rem;
+  font-weight: 900;
+  letter-spacing: .075em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.card {
+  min-width: 0;
+  background: #181817;
+  border: 1px solid #35332f;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem 1.15rem;
+  min-height: 3.2rem;
+  padding: .8rem 1.125rem;
+  background: #1b1a18;
+  border-bottom: 1px solid #36332e;
+}
+
+.cardHeader h3 {
+  min-width: 0;
+  margin: 0;
+  color: #e7e2da;
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1.25;
+  letter-spacing: .02em;
+}
+
+.cardBody {
+  min-width: 0;
+  padding: 1.05rem 1.125rem 1.125rem;
+}
+
+.statusTools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 1rem 1.5rem;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  color: #ded8cf;
+  font-size: .77rem;
+  font-weight: 850;
+  letter-spacing: .01em;
+  line-height: 1.3;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* Status is neutral text with a colored symbol, not a filled badge. */
+.status::before {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 1.0625rem;
+  width: 1.0625rem;
+  height: 1.0625rem;
+  content: "◷";
+  color: #dcb56d;
+  font-family: Arial, sans-serif;
+  font-size: .9rem;
+  font-weight: 900;
+}
+
+.status[data-tone="ok"]::before { content: "✓"; color: #9fc66b; }
+.status[data-tone="warn"]::before { content: "!"; color: #e2b25f; border: 1.5px solid #e2b25f; border-radius: 50%; font-size: .7rem; }
+.status[data-tone="off"]::before { content: "×"; color: #a49d94; }
+.status[data-tone="error"]::before { content: "×"; color: #e97867; }
+.status[data-tone="info"]::before { content: "◷"; color: #e2b25f; }
+
+.manageServer {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  gap: .5rem;
+  min-height: 2.375rem;
+  min-width: 8.25rem;
+  padding: .5rem .85rem;
+  background: #36332e;
+  border: 1px solid #48443d;
+  border-radius: 0;
+  color: #e7e2da;
+  font-size: .8rem;
+  font-weight: 850;
+  letter-spacing: .03em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.manageServer:hover { background: #555149; color: #fff; }
+.manageServer:focus-visible, .metadata summary:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.description {
+  margin: 0;
+  color: #cfc9bf;
+  font-size: .9rem;
+  line-height: 1.6;
+}
+
+.subtle {
+  margin: .6rem 0 0;
+  color: #aaa399;
+  font-size: .8rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  margin: 0;
+  color: #d8bf87;
+  font-size: .85rem;
+  line-height: 1.5;
+}
+
+.loading::before {
+  display: inline-block;
+  flex: 0 0 .8rem;
+  width: .8rem;
+  height: .8rem;
+  content: "";
+  border: 2px solid #6b604b;
+  border-top-color: #d6b572;
+  border-radius: 50%;
+  animation: overview-spin .8s linear infinite;
+}
+
+@keyframes overview-spin { to { transform: rotate(360deg); } }
+
+.alert {
+  margin: 0;
+  padding: .75rem .85rem;
+  border-left: 4px solid #b95540;
+  color: #f0c7bd;
+  background: #351e1a;
+  font-size: .85rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.softwareGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.2rem;
+  align-items: start;
+}
+
+.softwareGrid > .card { height: 100%; }
+
+.versionRows {
+  display: grid;
+  gap: 0;
+  margin: 0;
+}
+
+.versionRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: .75rem;
+  padding: .6rem 0;
+  border-bottom: 1px solid #34312d;
+  font-size: .84rem;
+  line-height: 1.45;
+}
+
+.versionRow:last-child { border-bottom: 0; }
+
+.versionRow dt {
+  color: #aba49a;
+  flex: 0 0 auto;
+}
+
+.versionRow dd {
+  min-width: 0;
+  margin: 0;
+  color: #eae5dc;
+  font-weight: 750;
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+
+.metadata {
+  margin-top: .9rem;
+  padding: .8rem;
+  background: #23211e;
+  border: 0;
+  border-left: 3px solid #647e38;
+  border-radius: 0;
+}
+
+.metadata summary {
+  cursor: pointer;
+  color: #e7e2da;
+  font-size: .8rem;
+  font-weight: 850;
+  letter-spacing: .02em;
+  text-transform: uppercase;
+}
+
+.metadataRows { margin: .5rem 0 0; }
+.metadataRows .versionRow { padding: .4rem 0; }
+
+.restartRequired { margin: .85rem 0 0; }
+
+.activityGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .85rem 1.25rem;
+  margin: 0;
+}
+
+.activityEntry { min-width: 0; }
+
+.activityEntry dt {
+  margin: 0 0 .25rem;
+  color: #a9a196;
+  font-size: .75rem;
+  font-weight: 700;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+.activityEntry dd {
+  min-width: 0;
+  margin: 0;
+  color: #eae5dc;
+  font-size: .88rem;
+  font-weight: 750;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.activityGrid + .loading,
+.activityGrid + .subtle { margin-top: .75rem; }
+
+@media (max-width: 53rem) {
+  .softwareGrid { grid-template-columns: 1fr; }
+  .layout { padding: var(--space-4) 0 var(--space-5); }
+}
+
+@media (max-width: 34rem) {
+  .pageHeader { padding-bottom: var(--space-2); }
+  .layout { gap: var(--space-4); }
+  .cardHeader, .cardBody { padding-inline: var(--space-3); }
+  .statusTools { width: 100%; justify-content: space-between; gap: .8rem; }
+  .activityGrid { grid-template-columns: 1fr; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading::before { animation: none; }
+}

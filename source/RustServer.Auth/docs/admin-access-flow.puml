@@ -1,0 +1,106 @@
+@startuml
+title RustServer.Auth — administrator actions and provider linking
+
+hide footbox
+skinparam responseMessageBelowArrow true
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 82
+
+actor Browser
+participant "AdminPortalController\n/admin" as AdminPortal
+participant "Razor page\nSERVER ACCESS" as AdminPage
+participant "Identity / authorization" as Identity
+participant "CSRF endpoint\n/api/auth/csrf" as Antiforgery
+participant "LogoutController\n/api/auth/logout" as Logout
+participant "Google link controller\n/api/auth/google/link" as GoogleLink
+participant "Google middleware\n/signin-google" as GoogleMiddleware
+participant "Steam link controller\n/api/auth/steam/link" as SteamLink
+participant "Steam middleware\n/signin-steam" as SteamMiddleware
+participant "Other platform applications\n/player, /dashboard" as Applications
+database "Identity data store" as Store
+
+note over AdminPortal, Applications
+  RustServer.Auth owns /admin and all /api/auth/* routes.
+  /player and /dashboard belong to other platform applications;
+  Auth renders links to them but does not implement them.
+end note
+
+== Open the administrator portal ==
+
+Browser -> AdminPortal: GET /admin
+AdminPortal -> Identity: Get current user and verify Admin role
+alt Administrator
+  Identity -> Store: Read user, roles and linked providers
+  Store --> Identity: Access allowed
+  Identity --> AdminPortal: true
+  AdminPortal --> Browser: 200 OK — SERVER ACCESS page
+  Browser -> AdminPage: Run inline JavaScript
+  AdminPage -> Identity: GET /api/auth/me
+  Identity --> AdminPage: 200 OK — current user and link status
+else Anonymous or non-Admin user
+  Identity --> AdminPortal: false
+  AdminPortal --> Browser: 404 Not Found
+  note right of AdminPortal
+    If the page's /api/auth/me call is unauthenticated,
+    its JavaScript navigates to /login.
+  end note
+end
+
+== Action 1 — Player Portal ==
+
+AdminPage -> Browser: Navigate through href="/player"
+Browser -> Applications: GET /player
+
+== Action 2 — Admin Dashboard ==
+
+AdminPage -> Browser: Navigate through href="/dashboard"
+Browser -> Applications: GET /dashboard
+
+== Action 3 — Sign Out ==
+
+AdminPage -> Antiforgery: GET /api/auth/csrf
+Antiforgery --> AdminPage: 200 OK — { token }
+AdminPage -> Logout: POST /api/auth/logout\nX-CSRF-TOKEN + auth cookie
+alt Authenticated request with valid CSRF token
+  Logout -> Identity: SignOutAsync()
+  Identity --> Logout: Clear RustServer.Auth cookie
+  Logout --> AdminPage: 204 No Content
+  AdminPage -> Browser: window.location.replace('/login')
+else Missing session or invalid CSRF token
+  Logout --> AdminPage: 401 Unauthorized or 400 Bad Request
+  AdminPage -> Browser: Display sign-out error
+end
+
+== Action 4 — Link Google ==
+
+Browser -> GoogleLink: GET /api/auth/google/link
+GoogleLink -> Identity: Create challenge with application callback\n/api/auth/google/link-callback and user ID
+GoogleLink -> GoogleMiddleware: Challenge("Google")
+GoogleMiddleware --> Browser: 302 Google authorization endpoint
+Browser -> GoogleMiddleware: GET /signin-google after Google authorization
+GoogleMiddleware --> Browser: 302 application callback
+Browser -> GoogleLink: GET /api/auth/google/link-callback
+GoogleLink -> Identity: Validate ownership and persist external login
+alt Link succeeds or already belongs to this user
+  GoogleLink --> Browser: 302 Location: /admin?googleLinked=1
+else Link fails
+  GoogleLink --> Browser: 400 Bad Request
+end
+
+== Action 5 — Link Steam ==
+
+Browser -> SteamLink: GET /api/auth/steam/link
+SteamLink -> Identity: Create challenge with application callback\n/api/auth/steam/link-callback and user ID
+SteamLink -> SteamMiddleware: Challenge("Steam")
+SteamMiddleware --> Browser: 302 Steam OpenID endpoint
+Browser -> SteamMiddleware: GET /signin-steam after Steam verification
+SteamMiddleware --> Browser: 302 application callback
+Browser -> SteamLink: GET /api/auth/steam/link-callback
+SteamLink -> Identity: Validate ownership and persist external login
+alt Link succeeds or already belongs to this user
+  SteamLink --> Browser: 302 Location: /admin?steamLinked=1
+else Link fails
+  SteamLink --> Browser: 400 Bad Request
+end
+
+@enduml

@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RustServer.Web | Plugins UX V9</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{font-family:Inter,Segoe UI,system-ui,sans-serif;color:#dfe6f0;background:#10151e;font-size:14px}*{box-sizing:border-box}button,select,input{font:inherit}button{cursor:pointer}button:disabled{opacity:.42;cursor:not-allowed}.shell{min-height:100vh;display:flex;flex-direction:column}.brand{height:54px;background:#192330;border-bottom:1px solid #344253;display:flex;align-items:center;padding:0 27px;gap:12px}.brand strong{letter-spacing:1px}.muted{color:#95a5ba}.wrap{flex:1;display:flex}.nav{width:185px;background:#17202c;border-right:1px solid #344253;padding:24px 10px}.nav .overline{font-size:11px;letter-spacing:1.7px;color:#7d8ca1;margin:0 12px 15px}.nav button{width:100%;border:0;background:none;color:#aab8c9;padding:12px 13px;text-align:left;border-radius:5px;margin-bottom:3px}.nav button.selected{background:#26384e;color:#fff;border-left:3px solid #70aeed;font-weight:650}.main{flex:1;min-width:0}.head{min-height:82px;display:flex;align-items:center;justify-content:space-between;padding:18px 27px;gap:15px;flex-wrap:wrap}.identity{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.h1{font-size:26px;font-weight:660;margin-right:15px}.badge{border:1px solid #526077;padding:7px 11px;border-radius:4px;font-size:12px;font-weight:700}.staging{border-color:#b99d59;color:#ead19b}.prod{border-color:#bd6a63;color:#f4b4ad}.branch{background:#243449}.actions{background:#192330;border-top:1px solid #344253;border-bottom:1px solid #344253;display:flex;gap:8px;padding:12px 25px;align-items:center;flex-wrap:wrap}.btn{background:#253448;border:1px solid #465a70;color:#e2e9f2;border-radius:4px;padding:9px 13px}.btn:hover:not(:disabled){background:#304762;border-color:#81b0e3}.btn.primary{background:#2373b9;border-color:#3889cc;color:#fff}.btn.negative{background:#9e4143;border-color:#bc5c5e;color:#fff}.panelgrid{padding:23px 26px;display:grid;grid-template-columns:1.15fr 1fr;gap:20px}.panel{background:#1a2633;border:1px solid #354657;border-radius:6px;min-width:0}.panelhead{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 17px;border-bottom:1px solid #344456}.panelhead h2{font-size:15px;margin:0;font-weight:670}.panelbody{padding:10px 17px 17px}.paneltools{display:flex;gap:7px;align-items:center}.tiny{padding:7px 11px;font-size:12px}.mini{font-size:11px;color:#99a9ba}.table{width:100%;border-collapse:collapse;text-align:left}.table th{font-size:11px;font-weight:600;color:#9eafc3;padding:13px 7px;border-bottom:1px solid #344456}.table td{padding:16px 7px;border-bottom:1px solid #344456;font-size:13px}.table tbody tr:last-child td{border:0}.green{color:#72ccac}.amber{color:#edc078}.red{color:#ff8385}.mono{font-family:ui-monospace,Consolas,monospace}.labelrow{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:15px 0;border-bottom:1px solid #354456}.labelrow:last-child{border:0}.foot{border-top:1px solid #344456;padding:13px 17px;font-size:12px;color:#9cabc0}.notice{margin:0 26px 20px;color:#95a5b9;font-size:12px}.dot{width:8px;height:8px;background:#e36567;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}.modalveil{position:fixed;inset:0;background:#080c13c9;display:none;justify-content:center;align-items:center;padding:18px;z-index:10}.modalveil.on{display:flex}.modal{background:#1c2a39;color:#e3e9f1;border:1px solid #57708b;width:min(700px,100%);max-height:90vh;border-radius:8px;box-shadow:0 35px 90px #0008;display:flex;flex-direction:column;overflow:hidden}.mtop{border-bottom:1px solid #34485a;padding:18px 22px;display:flex;justify-content:space-between;align-items:center}.mtop h2{margin:0;font-size:18px}.mbody{overflow:auto;padding:22px;display:grid;gap:14px;line-height:1.55}.mfoot{border-top:1px solid #34485a;padding:16px 22px;display:flex;justify-content:flex-end;gap:9px;flex-wrap:wrap}.hint{border:1px solid #42556a;border-radius:5px;padding:12px 14px;color:#b8c5d5;background:#172330}.files{border:1px solid #35485b;border-radius:5px}.file{padding:11px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #344456}.file:last-child{border:0}.file span.path{flex:1;overflow-wrap:anywhere}select,input[type=text]{width:100%;color:#f0f2f6;border:1px solid #50627a;background:#131d2a;padding:10px;border-radius:4px}input[type=checkbox]{accent-color:#6ab4fb}.fakecode{background:#111a26;border:1px solid #33475d;padding:14px;font:12px/1.9 Consolas,monospace;white-space:pre-wrap;border-radius:4px}.right{margin-left:auto}.smallspacer{height:7px}@media(max-width:850px){.panelgrid{grid-template-columns:1fr}.nav{width:112px}.head{padding:17px}.actions{padding:12px}.panelgrid{padding:14px}.nav button{font-size:12px}.notice{margin:10px 15px}}@media(max-width:540px){.nav{width:78px}.nav .overline{margin-left:3px;font-size:9px}.nav button{font-size:10px;padding:10px 4px}.h1{font-size:22px}.badge{font-size:10px}.table{font-size:11px}.table td{font-size:11px}}
+
+.modegroup{display:flex;gap:9px;flex-wrap:wrap}.modebtn{flex:1;min-width:130px;text-align:left;border:1px solid #51647d;background:#172330;border-radius:6px;padding:15px;color:#dfe6f0;cursor:pointer}.modebtn.on{border-color:#64a7ec;background:#263d55;box-shadow:inset 0 0 0 1px #64a7ec}.modebtn strong{display:block;margin-bottom:5px}.modebtn small{color:#99adc3}.release-list{border:1px solid #42556a;border-radius:5px;max-height:205px;overflow-y:auto;display:grid;gap:0}.release-item{display:flex;align-items:center;justify-content:space-between;background:#172330;border:0;border-bottom:1px solid #33475a;color:#e4eaf2;padding:11px 14px;text-align:left}.release-item:hover{background:#2b4058}.release-item.active{background:#254363;box-shadow:inset 3px 0 #72baff}.filelink{flex:1;border:0;background:transparent;text-align:left;font-family:ui-monospace,Consolas,monospace;overflow-wrap:anywhere;padding:9px 5px;border-radius:4px}.filelink:hover{background:#283d53;text-decoration:underline}.added{color:#79d9a7}.modified{color:#f2c477}.deleted{color:#ff8588}.busyveil{position:fixed;inset:0;z-index:30;background:#09111cbb;backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;padding:20px}.busyveil.on{display:flex}.busybox{background:#1c2a39;border:1px solid #56728e;border-radius:10px;padding:30px;max-width:430px;width:100%;text-align:center;box-shadow:0 25px 90px #0009}.spinner{border:3px solid #395169;border-top-color:#77bbff;border-radius:50%;width:35px;height:35px;animation:spin .85s linear infinite;margin:0 auto 19px}@keyframes spin{to{transform:rotate(360deg)}}.busysteps{margin-top:14px;font-size:12px;color:#adbed1}.tooltip{font-size:11px;color:#9cabc0}
+
+.modebtn{position:relative;transition:background .15s,border-color .15s,box-shadow .15s;outline:2px solid transparent;outline-offset:2px}
+.modebtn:hover{background:#304a65;border-color:#87c4ff;box-shadow:0 0 0 2px #4c9de95e}
+.modebtn.on{background:linear-gradient(135deg,#294e73,#1d3c5a);border:2px solid #79c2ff;box-shadow:0 0 0 2px #348ed44a,0 0 22px #1c8deb31}
+.modebtn.on:before{content:'●';position:absolute;right:14px;top:12px;color:#8ad4ff;font-size:17px;text-shadow:0 0 11px #40aaff}
+.modebtn:focus-visible{outline-color:#fff}
+.preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.preview-card{border:1px solid #476078;background:#162433;padding:12px;border-radius:6px}.preview-card strong{display:block;margin-bottom:9px}.preview-card .mini{line-height:2}
+.preview-summary{display:flex;gap:8px;flex-wrap:wrap}.preview-summary span{padding:6px 10px;border:1px solid #475b6f;border-radius:5px;background:#152435;font-weight:650}
+.preview-path{padding:9px 8px;border-bottom:1px solid #344556;font:12px Consolas,monospace;overflow-wrap:anywhere}.preview-path:last-child{border:0}
+.hist-controls{display:flex;align-items:center;gap:7px}.hist-controls button.active{border:2px solid #8bc5ff;background:#254766}.histrow{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:8px;align-items:center;padding:11px 8px;border-bottom:1px solid #354456}.histrow.headrow{font-size:11px;color:#9aacc3}.histrow .mini{overflow-wrap:anywhere}
+.debugdock{position:fixed;right:15px;bottom:15px;z-index:8;background:#322a1e;border:1px dashed #e1a761;box-shadow:0 8px 30px #0008;border-radius:8px;padding:10px 12px;display:grid;gap:8px;max-width:340px;font-size:11px}.debugdock strong{color:#ffd091;letter-spacing:.7px}.debugdock label{display:flex;gap:7px;align-items:center}
+.errorbox{background:#421e27;border:1px solid #ed6a77;border-left:5px solid #ff737c;color:#ffe2e4;padding:14px;border-radius:5px}.errorbox strong{color:#fff}
+@media(max-width:650px){.preview-grid{grid-template-columns:1fr}.histrow{grid-template-columns:1fr 1fr}.debugdock{max-width:220px}}
+
+/* V7: Rust-inspired visual treatment on existing Azure-style layout. No game assets embedded. */
+:root{font-family:Arial Narrow,Roboto Condensed,Segoe UI,system-ui,sans-serif;color:#d4d2ce;background:#0c0c0b;letter-spacing:.1px}
+body{background:radial-gradient(ellipse at 8% 90%,#27130f 0%,transparent 34%),#0d0d0c}
+.brand{height:62px;background:linear-gradient(180deg,#181817,#10100f);border-color:#34312c;padding-left:0;gap:17px}
+.brand strong{letter-spacing:1.4px;font-weight:900}
+.rust-logo-slot{width:72px;height:62px;background:#a93d29;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;flex-shrink:0;border-right:1px solid #d35a3d}
+.rust-symbol{font-size:25px;font-weight:900;color:#211611;line-height:1}
+.asset-label{font-size:6px;font-weight:900;letter-spacing:.5px;color:#231511;text-align:center;line-height:1.1}
+.muted,.mini,.tooltip{color:#98958f}
+.nav{background:linear-gradient(180deg,#181715,#241b18);border-color:#342d28}
+.nav .overline{color:#9e9182;font-weight:850}
+.nav button{border-radius:0;color:#b1aca4;font-weight:750;text-transform:uppercase;letter-spacing:.4px;border-left:3px solid transparent}
+.nav button:hover{background:#302b25;color:#f4eee5}
+.nav button.selected{background:#657b3a;border-left-color:#9cbd5d;color:#f2f6e8}
+.head{background:#111110}
+.h1{font-weight:900;text-transform:uppercase;letter-spacing:.5px}
+.badge{border-radius:0;background:#211f1a;font-weight:900;letter-spacing:.5px}
+.staging{border-color:#839c4e;color:#aeca77;background:#29321e}
+.prod{border-color:#ac4f3d;color:#e39b8d;background:#371e1a}
+.branch{background:#282622;border-color:#49453d;color:#ebe5d9}
+.actions,.panelhead{background:#1b1a18;border-color:#36332e}
+.btn{background:linear-gradient(180deg,#302e2a,#262421);border:1px solid #514d46;border-radius:0;color:#e7e2da;font-weight:750;letter-spacing:.2px}
+.btn:hover:not(:disabled){background:#49453e;border-color:#b5ad9d;color:#fff}
+.btn.primary{background:#a8412d;border-color:#d36042;color:#fff}
+.btn.primary:hover:not(:disabled){background:#c34b31;border-color:#f37954}
+.btn.negative{background:#8e302a;border-color:#c64d42}
+.panel{background:#181817;border-color:#35332f;border-radius:0}
+.panelhead h2{font-weight:900;text-transform:uppercase;letter-spacing:.35px}
+.panelbody,.foot{border-color:#33302c}
+.table th{background:#101010;color:#a5a19a;font-weight:850;text-transform:uppercase;border-color:#302d29}
+.table td,.labelrow{border-color:#302e2a}
+.table tbody tr:nth-child(even){background:#1d1c1a}
+.green,.added{color:#9fbd67}.amber,.modified{color:#e0ad57}.red,.deleted{color:#e46a55}
+.dot{background:#e6634b}
+.modalveil{background:#080807d9;backdrop-filter:blur(2px)}
+.modal{background:#1a1917;color:#e7e1d6;border:1px solid #655f56;border-radius:1px}
+.mtop,.mfoot{background:#211f1b;border-color:#403b33}
+.mtop h2{font-weight:900;text-transform:uppercase}
+.hint,.notice{background:#26241f;border:1px solid #4d473b;color:#c9c2b5;border-radius:0}
+.hint-flow{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:5px;padding:10px 13px;font-family:ui-monospace,Consolas,monospace}
+.hint-flow strong{color:#eec179;font-size:12px}.hint-flow span{font-size:11px;color:#c8c2b7}
+.files,.release-list,.preview-card{border-radius:0;border-color:#403b34}
+.file,.release-item,.preview-path{border-color:#38342e}
+.filelink:hover{background:#302d27}
+.modebtn{border-radius:0;background:#262520;color:#e4e0d8;border-color:#645b4d}
+.modebtn:hover{background:#434030;border-color:#dbc277;box-shadow:0 0 0 2px #d2ae4b35}
+.modebtn.on{background:linear-gradient(135deg,#526633,#364527);border:2px solid #b2d46d;box-shadow:0 0 0 2px #86a74940,0 0 18px #77973b30}
+.modebtn.on:before{color:#d5ed8b;text-shadow:0 0 10px #9edb5a}
+.modebtn small{color:#aaa69e}
+.release-item{background:#24221f}.release-item:hover{background:#353329}.release-item.active{background:#41522b;box-shadow:inset 4px 0 #a5c765}
+input[type=checkbox]{accent-color:#a9c56c}
+select,input[type=text]{background:#121211;border-color:#5b564c;color:#eae6dc;border-radius:0}
+.preview-card{background:#211f1a}.preview-summary span{border-radius:0;background:#22201c;border-color:#4c473e}
+.hist-controls button.active{border-color:#c7de8c;background:#485a33}
+.busyveil{background:#090908d4;backdrop-filter:blur(4px)}
+.busybox{background:#201f1c;border-radius:1px;border-color:#766d5b}.spinner{border-color:#555044;border-top-color:#c6db83}
+.debugdock{background:#332516;border-color:#f1a34a;border-radius:0}
+.errorbox{background:#3c1713;border-color:#de644e;border-left-color:#f35e40;border-radius:0}
+.fakecode{background:#111110;border-color:#39352e;border-radius:0}
+
+/* V8: Rust-style visual consistency. Hover changes full surfaces, not borders. */
+:root{font-family:"Roboto Condensed","Arial Narrow",Impact,sans-serif;font-stretch:condensed}
+body,button,select,input{font-family:"Roboto Condensed","Arial Narrow",Impact,sans-serif}
+.h1,.brand strong,.panelhead h2,.mtop h2,.nav button,.btn,.modebtn strong,.release-item{font-family:"Roboto Condensed","Arial Narrow",Impact,sans-serif;font-weight:800;letter-spacing:.35px}
+.nav button,.btn,.modebtn,.release-item,.filelink{transition:background-color .14s ease,color .14s ease;outline-offset:2px}
+/* Unified fill hover for command, header, modal and table buttons. */
+.btn{background:#302e2a;border:1px solid #302e2a;color:#e7e2da}
+.btn:hover:not(:disabled){background:#555149;border-color:#555149;color:#fff}
+.btn:focus-visible,.nav button:focus-visible,.release-item:focus-visible,.modebtn:focus-visible,.filelink:focus-visible{outline:2px solid #c5db84}
+/* Positive confirmations use Rust olive green. */
+.btn.primary,.btn.negative{background:#647e38;border-color:#647e38;color:#f6f9ea}
+.btn.primary:hover:not(:disabled),.btn.negative:hover:not(:disabled){background:#87a94c;border-color:#87a94c;color:#10140b}
+/* Neutral cancellation and close controls remain graphite. */
+.mfoot .btn:not(.primary):not(.negative),.mtop .btn{background:#393631;border-color:#393631;color:#ddd8cf}
+.mfoot .btn:not(.primary):not(.negative):hover,.mtop .btn:hover{background:#5a554c;border-color:#5a554c;color:white}
+.nav button{border-left:3px solid transparent}
+.nav button:hover{background:#514939;color:#fff}
+.nav button.selected{background:#647e38;border-left-color:#647e38;color:#fff}
+/* Active selection uses solid fills and a dot, not a glowing border. */
+.modebtn{background:#292722;border:1px solid #292722;box-shadow:none;outline:none}
+.modebtn:hover{background:#484b33;border-color:#484b33;box-shadow:none}
+.modebtn.on{background:#647e38;border:1px solid #647e38;box-shadow:none;color:white}
+.modebtn.on:hover{background:#789849;border-color:#789849;box-shadow:none}
+.modebtn.on:before{color:#e2f3b6;text-shadow:none;right:13px;top:9px}
+.modebtn.on small{color:#e3efc8}
+.release-item{background:#262420;border:0;border-bottom:1px solid #39352e}
+.release-item:hover{background:#504c3b;border-color:#39352e}
+.release-item.active,.release-item.active:hover{background:#657e39;box-shadow:none;color:#fff}
+.filelink:hover{background:#49443a;color:inherit;text-decoration:underline}
+.hist-controls button.active{background:#657e39;border-color:#657e39;color:#fff}
+/* Red is reserved for destructive server stop/exits or error status; the debug simulation is neutral. */
+.debugdock #debugFail{background:#514838;border-color:#514838}
+.debugdock #debugFail:hover{background:#705c40;border-color:#705c40}
+
+/* V10: logo geometry aligned to left navigation, extended burgundy-to-graphite fade. */
+.brand{padding-left:10px}
+.rust-logo-slot{width:91px;height:62px;background:linear-gradient(90deg,#321916 0%,#301815 78%,#29201c 91%,#20201e 100%);border-right:1px solid #34302c;display:flex;align-items:center;justify-content:center}
+.rust-logo-tile{height:43px;width:43px;background:#cf432c;display:flex;align-items:center;justify-content:center}
+.rust-logo-tile img{display:block;width:34px;height:34px;object-fit:contain;image-rendering:auto}
+.rust-logo-tile img[hidden]{display:none}
+.rust-logo-fallback{font-family:Impact,sans-serif;font-size:29px;color:#1c1513;font-weight:900}
+</style></head><body style="margin:0"><div class="shell">
+<div class="brand"><div class="rust-logo-slot" title="Rust game — icon loaded from the official rust.facepunch.com website"><div class="rust-logo-tile"><img src="https://rust.facepunch.com/favicon.ico" alt="Rust game logo" width="36" height="36" onerror="this.hidden=true;this.nextElementSibling.hidden=false"><span class="rust-logo-fallback" hidden>R</span></div></div><strong>RUSTSERVER</strong><span class="muted">/ Control Panel</span><span class="muted right" style="font-size:11px">UX CHECKPOINT · V10 · SIMULATED DATA</span></div>
+<div class="wrap"><nav class="nav"><div class="overline">PLATFORM</div><button data-nav="Overview">▦ &nbsp; Overview</button><button data-nav="Server">▣ &nbsp; Server</button><button data-nav="World">◈ &nbsp; World</button><button class="selected">⬡ &nbsp; Plugins</button></nav><main class="main">
+<div class="head"><div class="identity"><span class="h1">Plugins</span><span class="badge staging" id="environmentValue">STAGING</span><span class="badge branch" id="branchValue">Branch: develop</span></div><button class="btn" id="history" data-open="history">◷ History</button></div>
+<div class="actions"><button class="btn" data-open="environment">⚙ Environment</button><button class="btn" data-open="source">⇄ Switch Branch</button><button class="btn primary" data-open="apply">⇧ Apply Source</button></div>
+<div class="panelgrid"><section class="panel"><div class="panelhead"><h2>Git Repositories</h2><div class="paneltools"><button class="btn tiny" data-open="fetch">↻ Fetch Git</button></div></div><div class="panelbody"><table class="table"><thead><tr><th>Repository</th><th>Local Branch</th><th>Local ↔ Remote</th><th>Sync</th></tr></thead><tbody><tr><td><strong>Plugins</strong></td><td class="mono" id="gitBranch1">develop</td><td class="amber" id="rel1">↓ Behind</td><td><button class="btn tiny" id="sync0" data-sync="0">⇣ Fast-forward</button></td></tr><tr><td><strong>Configs</strong></td><td class="mono" id="gitBranch2">develop</td><td class="green" id="rel2">✓ Equal</td><td><button class="btn tiny" id="sync1" data-sync="1" disabled>✓ Synced</button></td></tr></tbody></table></div><div class="foot"><div id="fetchTime">Last Fetch: Unknown</div><div style="margin-top:6px">Commit date: Not provided by API</div></div></section>
+<section class="panel"><div class="panelhead"><h2>Applied Baseline</h2><button class="btn tiny" data-open="diff"><span class="dot" id="dirtyDot"></span>Runtime Diff <span id="diffCount"></span></button></div><div class="panelbody"><div class="labelrow"><span class="muted">Source</span><strong id="appliedSource">develop</strong></div><div class="labelrow"><span class="muted">Plugins SHA</span><code>abc1234</code></div><div class="labelrow"><span class="muted">Configs SHA</span><code>def5678</code></div><div class="labelrow"><span class="muted">Runtime vs Baseline</span><strong class="red" id="runtimeState">4 changed files</strong></div><div class="labelrow"><span class="muted">Applied at</span><span>08 Oct 2026 · Demo</span></div></div></section></div>
+<div class="notice">Preview shows layout and workflows only. No server requests are made. Sync is available via POST /api/git/sync, one repository at a time. Commit timestamps remain unavailable. All actions are simulated.</div>
+</main></div></div>
+<div class="modalveil" id="veil"><div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="mtop"><h2 id="modalTitle"></h2><button class="btn tiny" data-act="close">✕</button></div><div class="mbody" id="modalBody"></div><div class="mfoot" id="modalFooter"></div></div></div>
+<div class="busyveil" id="busyVeil" role="status" aria-live="polite" aria-busy="true"><div class="busybox"><div class="spinner"></div><strong id="busyTitle">Operation in progress</strong><div class="busysteps" id="busyDetails">Waiting for backend operation report…</div><div class="tooltip" style="margin-top:18px">UI is locked until this operation completes. Demo duration: ~2 seconds.</div></div></div>
+<div class="debugdock" id="debugdock"><strong>⚒ DEMO / TEST CONTROLS</strong><label><input type="checkbox" id="debugRunning"> Simulate Rust server running</label><button class="btn tiny" id="debugFail">Simulate operation rejection</button><span class="mini">Test-only controls · not part of product UI</span></div>
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const state={env:'Staging',branch:'develop',relation:['behind','equal'],workspace:['clean','clean'],fetched:false,files:[{repo:'Plugins',path:'oxide/plugins/GatherManager.cs',change:'modified'},{repo:'Configs',path:'oxide/config/Economics.json',change:'modified'},{repo:'Configs',path:'oxide/config/BetterLoot.json',change:'added'},{repo:'Plugins',path:'oxide/plugins/OldPlugin.cs',change:'deleted'}]};
+const releases=['3.2.0','3.1.3','3.1.2','3.0.0','2.9.7','2.8.0','2.7.2','2.6.0','2.5.0','2.4.0','2.3.1'];
+let targetMode='development',targetRelease=releases[0],selection=[],syncIndex=0,busy=false;
+const B=(text,act,cls='')=>`<button class="btn ${cls}" data-act="${act}">${text}</button>`;
+function modal(title,html,buttons){$('modalTitle').textContent=title;$('modalBody').innerHTML=html;$('modalFooter').innerHTML=buttons;$('veil').classList.add('on')}
+function close(){$('veil').classList.remove('on')}
+function render(){
+ $('environmentValue').textContent=state.env.toUpperCase();$('environmentValue').className='badge '+(state.env==='Staging'?'staging':'prod');$('branchValue').textContent='Branch: '+state.branch;
+ $('appliedSource').textContent=state.branch;$('gitBranch1').textContent=$('gitBranch2').textContent=state.branch;
+ let statuses={equal:['✓ Equal','green'],ahead:['↑ Ahead','amber'],behind:['↓ Behind','amber'],diverged:['⚠ Diverged','red'],unknown:['? Unknown','red']};
+ let syncs={equal:'✓ Synced',ahead:'⇡ Push',behind:'⇣ Fast-forward',diverged:'⇄ Merge + Push',unknown:'⚠ Unavailable'};
+ for(let i=0;i<2;i++){let relation=state.relation[i],display=statuses[relation];$('rel'+(i+1)).textContent=display[0];$('rel'+(i+1)).className=display[1];let el=$('sync'+i);el.textContent=state.workspace[i]==='clean'?syncs[relation]:'⚠ Dirty';el.disabled=relation==='equal'||relation==='unknown'||state.workspace[i]!=='clean';}
+ $('runtimeState').textContent=state.files.length?state.files.length+' changed files':'Up to date';$('runtimeState').className=state.files.length?'red':'green';$('dirtyDot').style.display=state.files.length?'inline-block':'none';$('diffCount').textContent=state.files.length?'('+state.files.length+')':'';$('fetchTime').textContent=state.fetched?'Last Fetch: just now (demo only)':'Last Fetch: Unknown';
+}
+function serverBlocked(){return $('debugRunning').checked}
+function rejection(code='ServerMustBeStopped',details='The Rust server is running. Stop it before performing this operation.'){
+ close();modal('Operation rejected',`<div class="errorbox"><strong>✕ Operation failed · 409 Conflict</strong><p>${details}</p><div class="mono" style="margin-top:8px">${code}</div></div><div class="hint">Nothing was changed. Stop the Rust server using the Server page, then retry. This is a simulated backend error.</div>`,B('Close','close'));
+}
+function mockHistory(n=10){
+ const ops=[['GitSync','Succeeded','Merge + Push','plugins','op-019a'],['ApplySource','Succeeded','Source application','plugins + configs','op-0199'],['CommitRuntime','Failed','GitSynchronizationRequired','configs','op-0198'],['FetchGit','Succeeded','Fetch','plugins + configs','op-0197'],['RevertRuntime','Succeeded','Revert selected','configs','op-0196'],['GitSync','Failed','GitMergeConflict','plugins','op-0195']];
+ const rows=ops.slice(0,n===10?2:n===50?4:6);
+ return `<div class="hint">Illustrative Operation Reports. Backend supports GET /api/operations/{id}, but <strong>does not publish an operation history list</strong>. These entries are mock data.</div><div class="hist-controls"><span class="mini">Page size</span>${[10,50,200].map(v=>`<button class="btn tiny ${n===v?'active':''}" data-history-size="${v}">${v}</button>`).join('')}</div><div><div class="histrow headrow"><span>Operation / ID</span><span>Result</span><span>Repository</span></div>${rows.map(o=>`<div class="histrow"><div><strong>${o[0]}</strong><div class="mini mono">${o[4]}</div><div class="mini">${o[2]}</div></div><strong class="${o[1]==='Succeeded'?'green':'red'}">${o[1]}</strong><span class="mini">${o[3]}</span></div>`).join('')}</div><div class="mini">${rows.length} sample items shown · 10/50/200 are page-size controls, not total records.</div>`;
+}
+function operation(name,after){if(serverBlocked()){rejection();return}close();busy=true;$('busyTitle').textContent=name;$('busyDetails').textContent='Submitting command and tracking operationId…';$('busyVeil').classList.add('on');setTimeout(()=>{$('busyDetails').textContent='Operation report: Running → Succeeded';},850);setTimeout(()=>{busy=false;$('busyVeil').classList.remove('on');after();render()},2100)}
+function environmentDialog(){modal('Change Environment',`<div class="hint">Choose the logical environment. Switching does not deploy files or restart Rust.</div><div class="modegroup"><button class="modebtn ${state.env==='Staging'?'on':''}" data-env="Staging"><strong>Staging</strong><small>Development or Release</small></button><button class="modebtn ${state.env==='Production'?'on':''}" data-env="Production"><strong>Production</strong><small>Release only</small></button></div><div class="tooltip">Production requires an applied Release baseline.</div>`,B('Cancel','close')+B('Confirm environment','envdone','primary'))}
+function sourceDialog(){modal('Switch Branch',`<div class="hint">Choose Development or a specific Release. No files change until Apply succeeds.</div><div class="modegroup"><button class="modebtn ${targetMode==='development'?'on':''}" data-mode="development"><strong>Development</strong><small>develop</small></button><button class="modebtn ${targetMode==='release'?'on':''}" data-mode="release"><strong>Release</strong><small>Choose a version below</small></button></div><section id="releaseArea" style="display:${targetMode==='release'?'grid':'none'};gap:9px"><span class="muted">Available Releases · newest first</span><div class="release-list">${releases.map(v=>`<button class="release-item ${targetRelease===v?'active':''}" data-release="${v}"><span>release/${v}</span><span>${targetRelease===v?'✓':''}</span></button>`).join('')}</div></section>`,B('Cancel','close')+B('Preview Source','preview','primary'))}
+function diffMarkup(){return `<div class="hint hint-flow"><strong>Baseline ↔ Runtime</strong><span>Commit → Git &nbsp;·&nbsp; Revert → Baseline</span></div><div class="mini">Select files to process; click a colored path to view its diff.</div><div class="files">${state.files.map((f,i)=>`<div class="file"><input aria-label="Select ${f.path}" type="checkbox" data-choose="${i}" checked><span class="mini" style="width:64px">${f.change}</span><button class="filelink ${f.change}" data-view="${i}">${f.repo} / ${f.path}</button></div>`).join('')}</div>`}
+function preview(){
+const dest=targetMode==='development'?'develop':'release/'+targetRelease;
+if(state.env==='Production'&&dest==='develop'){modal('Source unavailable','<div class="hint">Production requires a Release.</div>',B('Back','source'));return}
+const changes=[['added','plugins','oxide/plugins/ExampleNew.cs'],['modified','configs','oxide/config/Economics.json'],['modified','plugins','oxide/plugins/GatherManager.cs'],['deleted','plugins','oxide/plugins/OldPlugin.cs']];
+const targetHead=dest==='develop'?['e2a91f0','92bd722']:['6be83a1','a7219c4'];
+modal('Source Preview · Review before Apply',`<div class="hint hint-flow"><strong>Git Source ↔ Runtime</strong><span>Apply → updates Runtime + Baseline</span></div><div class="mini">Preview compares the selected Git source with actual Runtime files. Baseline appears below for reference.</div>
+<div class="preview-grid"><section class="preview-card"><strong>Current applied Baseline</strong><div class="mini">Branch: <b>${state.branch}</b></div><div class="mini">Plugins: <code>abc1234</code></div><div class="mini">Configs: <code>def5678</code></div><div class="mini">Applied: 08 Oct 2026 (demo)</div></section><section class="preview-card"><strong>Target Git Source</strong><div class="mini">Branch: <b>${dest}</b></div><div class="mini">Plugins HEAD: <code>${targetHead[0]}</code></div><div class="mini">Configs HEAD: <code>${targetHead[1]}</code></div><div class="mini">Resolution: origin/${dest} (demo)</div></section></div>
+<div class="preview-summary"><span class="green">+ 1 Added</span><span class="amber">~ 2 Modified</span><span class="red">− 1 Deleted</span></div>
+<div class="files">${changes.map(c=>`<div class="preview-path ${c[0]==='added'?'added':c[0]==='deleted'?'deleted':'modified'}"><b>${c[0].toUpperCase()}</b> &nbsp; ${c[1]} / ${c[2]}</div>`).join('')}</div>
+<div class="hint">Changes and SHA values are examples of POST /api/source/preview response fields (<code>targetGit</code>, <code>counts</code>, <code>changes</code>). Apply performs a fresh fetch/validation. Runtime changes may be overwritten. Rust must be stopped.</div>`,B('Back','source')+B('Confirm Apply (demo)','applydone','primary'))
+}
+function open(type){switch(type){
+case 'environment': environmentDialog();break;
+case 'source':targetMode=state.branch==='develop'?'development':'release';targetRelease=state.branch.startsWith('release/')?state.branch.slice(8):releases[0];if(state.env==='Production')targetMode='release';sourceDialog();break;
+case 'apply':targetMode=state.branch==='develop'?'development':'release';targetRelease=state.branch.startsWith('release/')?state.branch.slice(8):releases[0];preview();break;
+case 'fetch':modal('Fetch Git',`<div class="hint">Fetch updates remote-tracking refs for both repositories, not local branches. After completion refresh Git Status; Sync controls then reflect the reported relation.</div><div class="labelrow"><span>Plugins</span><strong>${state.relation[0]}</strong></div><div class="labelrow"><span>Configs</span><strong>${state.relation[1]}</strong></div>`,B('Cancel','close')+B('Fetch (demo)','fetchdone','primary'));break;
+case 'diff':modal('Runtime Diff',state.files.length?diffMarkup():'<div class="hint">Runtime matches Baseline.</div>',B('Close','close')+(state.files.length?B('Revert selected','revert')+(state.env==='Staging'?B('Commit selected','commit','primary'):''):''));break;
+case 'history':modal('Operation History · Mock',mockHistory(10),B('Close','close'));break;
+}}
+function action(a){if(a==='close'){close();return}if(a==='source'||a==='diff'||a==='environment'){open(a);return}if(a==='preview'){preview();return}
+if(a==='envdone'){let chosen=document.querySelector('[data-env].on')?.dataset.env||state.env;if(chosen==='Production'&&!state.branch.startsWith('release/')){modal('Cannot switch',`<div class="hint">Apply a Release on Staging before switching to Production.</div>`,B('Back','environment'));return}state.env=chosen;close();render();return}
+if(a==='applydone'){operation('Applying Source',()=>{state.branch=targetMode==='development'?'develop':'release/'+targetRelease;state.files=[];modal('Apply completed · Demo','<div class="hint">Baseline and Runtime changed in this simulation. The real UI refreshes them after reading a successful operation report.</div>',B('Close','close'))});return}
+if(a==='fetchdone'){operation('Fetching Git repositories',()=>{state.fetched=true;state.relation=['behind','ahead'];modal('Fetch completed · Demo',`<div class="hint">New Git Status: Plugins <strong>Behind</strong>, Configs <strong>Ahead</strong>. Local branches and Baseline remain unchanged. Sync buttons now propose Fast-forward or Push.</div>`,B('Close','close'))});return}
+if(a==='syncdone'){let repo=syncIndex,behavior={equal:'No-op',behind:'Fast-forward',ahead:'Push',diverged:'Merge + Push'}[state.relation[repo]]||'Unknown';operation('Synchronizing '+(repo===0?'Plugins':'Configs'),()=>{state.relation[repo]='equal';modal('Sync completed · Demo',`<div class="hint">Backend behavior: <strong>${behavior}</strong>. Only the selected local Git repository was synchronized. Baseline and Runtime did not change.</div>`,B('Close','close'))});return}
+if(a==='commit'||a==='revert'){selection=[...document.querySelectorAll('[data-choose]:checked')].map(x=>Number(x.dataset.choose));if(!selection.length){modal('No selection','<div class="hint">Select at least one file.</div>',B('Back','diff'));return}if(a==='commit')modal('Commit + Push',`<div class="hint">${selection.length} file(s) selected. Commit targets ${state.branch}. Backend may reject with GitSynchronizationRequired or GitSourceChangedSinceBaseline.</div><label>Commit message</label><input id="commitMessage" type="text" value="Update runtime configuration">`,B('Back','diff')+B('Commit (demo)','commitdone','primary'));else modal('Revert Runtime',`<div class="hint">Restore ${selection.length} selected file(s) from Baseline? Existing changes will be discarded.</div>`,B('Back','diff')+B('Confirm Revert (demo)','revertdone','primary'));return}
+if(a==='commitdone'){const message=$('commitMessage')?.value?.trim();if(!message){alert('Commit message is required');return}operation('Committing Runtime changes',()=>modal('Commit completed · Demo','<div class="hint">Git changed, but Runtime and Baseline remain unchanged. A subsequent Apply is separate.</div>',B('Close','close')));return}
+if(a==='revertdone'){operation('Reverting Runtime changes',()=>{state.files=state.files.filter((_,i)=>!selection.includes(i));modal('Revert completed · Demo','<div class="hint">Selected Runtime files restored. Diff refreshed after the operation.</div>',B('Close','close'))});return}}
+document.addEventListener('click',e=>{if(e.target.closest('#debugFail')){rejection();return}const h=e.target.closest('[data-history-size]');if(h){modal('Operation History · Mock',mockHistory(Number(h.dataset.historySize)),B('Close','close'));return}if(busy)return;let el=e.target.closest('[data-env]');if(el){document.querySelectorAll('[data-env]').forEach(x=>x.classList.toggle('on',x===el));return}el=e.target.closest('[data-mode]');if(el){targetMode=el.dataset.mode;if(state.env==='Production'&&targetMode==='development')return;document.querySelectorAll('[data-mode]').forEach(x=>x.classList.toggle('on',x===el));$('releaseArea').style.display=targetMode==='release'?'grid':'none';return}el=e.target.closest('[data-release]');if(el){targetRelease=el.dataset.release;document.querySelectorAll('[data-release]').forEach(x=>{x.classList.toggle('active',x===el);x.lastElementChild.textContent=x===el?'✓':''});return}
+el=e.target.closest('[data-sync]');if(el){syncIndex=Number(el.dataset.sync);let rel=state.relation[syncIndex];modal('Sync '+(syncIndex===0?'Plugins':'Configs'),`<div class="hint">Relation: <strong>${rel}</strong>. Backend determines the action automatically after fresh Fetch. Rust must be stopped. No force push or rebase.</div>`,B('Cancel','close')+B('Sync repository (demo)','syncdone','primary'));return}
+el=e.target.closest('[data-open]');if(el){open(el.dataset.open);return}el=e.target.closest('[data-act]');if(el){action(el.dataset.act);return}el=e.target.closest('[data-view]');if(el){let f=state.files[Number(el.dataset.view)];modal('File Diff · '+f.path,`<div class="hint">${f.repo} · ${f.change} · Baseline ↔ Runtime</div><div class="fakecode"><span class="red">- "enabled": false</span>
+<span class="green">+ "enabled": true</span></div><span class="mini">Illustrative diff only.</span>`,B('Back to Runtime Diff','diff'));return}el=e.target.closest('[data-nav]');if(el){modal(el.dataset.nav,'<div class="hint">This checkpoint covers Plugins only.</div>',B('Close','close'));return}if(e.target===$('veil'))close()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!busy)close()});render();
+})();
+</script></body></html>

@@ -1,0 +1,183 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "RustServer Versions API",
+    "description": "Retrieves Rust Dedicated Server and Oxide version information.",
+    "version": "v1"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Gets the availability of the Versions API.",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/versions/oxide": {
+      "get": {
+        "tags": [
+          "OxideVersions"
+        ],
+        "summary": "Gets the installed, running, and available Oxide versions.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OxideVersionInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/versions/rust": {
+      "get": {
+        "tags": [
+          "RustVersions"
+        ],
+        "summary": "Gets the installed, running, and available Rust versions.",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RustVersionInfo"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "OxideVersionInfo": {
+        "required": [
+          "availableVersion",
+          "updateAvailable"
+        ],
+        "type": "object",
+        "properties": {
+          "installedVersion": {
+            "type": "string",
+            "description": "Oxide version installed on disk, or null when Oxide is not installed.",
+            "nullable": true
+          },
+          "runningVersion": {
+            "type": "string",
+            "description": "Oxide version reported by the running server, or null when it is stopped.",
+            "nullable": true
+          },
+          "availableVersion": {
+            "type": "string",
+            "description": "Latest Oxide version available from GitHub."
+          },
+          "updateAvailable": {
+            "type": "boolean",
+            "description": "Whether Oxide needs installation or the available version differs from the installed version."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Version state for Oxide.Rust."
+      },
+      "RustRunningVersion": {
+        "required": [
+          "branch",
+          "buildDate",
+          "changeset",
+          "protocol",
+          "unityVersion"
+        ],
+        "type": "object",
+        "properties": {
+          "protocol": {
+            "type": "string",
+            "description": "Rust protocol version."
+          },
+          "buildDate": {
+            "type": "string",
+            "description": "UTC timestamp embedded in the running server build.",
+            "format": "date-time"
+          },
+          "unityVersion": {
+            "type": "string",
+            "description": "Unity version used to build the server."
+          },
+          "changeset": {
+            "type": "integer",
+            "description": "Rust source changeset number.",
+            "format": "int32"
+          },
+          "branch": {
+            "type": "string",
+            "description": "Rust branch reported by the server."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Version metadata reported by the currently running Rust Dedicated Server. This metadata is distinct from Steam BuildIDs."
+      },
+      "RustVersionInfo": {
+        "required": [
+          "availableBuildId",
+          "branch",
+          "updateAvailable"
+        ],
+        "type": "object",
+        "properties": {
+          "branch": {
+            "type": "string",
+            "description": "Steam branch used by the server installation."
+          },
+          "installedBuildId": {
+            "type": "integer",
+            "description": "Steam BuildID installed on disk, or null when Rust is not installed.",
+            "format": "int64",
+            "nullable": true
+          },
+          "running": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/RustRunningVersion"
+              }
+            ],
+            "description": "Version metadata reported by the running server, or null when it is stopped.",
+            "nullable": true
+          },
+          "availableBuildId": {
+            "type": "integer",
+            "description": "Latest Steam BuildID available for the configured branch.",
+            "format": "int64"
+          },
+          "updateAvailable": {
+            "type": "boolean",
+            "description": "Whether Rust needs installation or the available BuildID differs from the installed BuildID."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Version state for Rust Dedicated Server."
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Health"
+    },
+    {
+      "name": "OxideVersions"
+    },
+    {
+      "name": "RustVersions"
+    }
+  ]
+}

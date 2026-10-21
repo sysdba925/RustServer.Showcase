@@ -1,0 +1,33 @@
+.navigation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin: 0 var(--space-1) var(--space-5);
+  padding: var(--space-1);
+  background: #1b1a18;
+  border: 1px solid #36332e;
+}
+
+.link {
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-muted-text);
+  font-size: .8125rem;
+  font-weight: 800;
+  letter-spacing: .02em;
+  text-decoration: none;
+}
+
+.link:hover {
+  color: var(--color-text);
+  background: #514939;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.linkActive {
+  color: #f6f9ea;
+  background: var(--color-accent);
+}

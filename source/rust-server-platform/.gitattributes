@@ -1,0 +1,5 @@
+# Bash scripts must retain Unix line endings in Windows working trees.
+*.sh text eol=lf
+deploy/bootstrap/assets/tools text eol=lf
+deploy/bootstrap/assets/rustserver-auth.service text eol=lf
+deploy/bootstrap/assets/rustserver-rcon-grpc.service text eol=lf

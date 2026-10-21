@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Updater Console — interactive UX prototype</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; --bg:#13171e; --surface:#1d242e; --surface2:#252e3a; --surface3:#2d3846; --line:#34404e; --text:#ecf2f8; --muted:#9baab9; --ok:#79b7a4; --accent:#8db9ee; --warn:#e7b976; --danger:#f08f94; --redbg:#392a31; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); min-height:100vh; }
+    button,select { font:inherit; }
+    button { cursor:pointer; color:inherit; }
+    button:disabled { opacity:.45; cursor:not-allowed; }
+    button:focus-visible,select:focus-visible,[tabindex]:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+    .shell { max-width:1320px; margin:auto; padding:20px 24px 24px; }
+    header { display:flex; align-items:center; gap:24px; justify-content:space-between; margin-bottom:16px; }
+    .eyebrow { text-transform:uppercase; letter-spacing:.17em; font-size:10px; color:#90a2b6; font-weight:800; }
+    h1 { font-size:26px; font-weight:750; margin:4px 0 0; letter-spacing:-.035em; }
+    h2,h3,p { margin:0; }
+    .header-right { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+    .pill { display:inline-flex; gap:6px; align-items:center; padding:5px 10px; font-size:11px; font-weight:700; border-radius:999px; border:1px solid #4c5560; color:#d7e1ed; white-space:nowrap; }
+    .pill.dev { color:#ebc88f; border-color:#6e5841; background:#372d26; }
+    .pill.ok { border-color:#41645a; color:#a9dccd; background:#233931; }
+    .pill.err { border-color:#875052; color:#ffc1c3; background:#41292f; }
+    .pill.busy { color:#adcef4; border-color:#41658b; background:#233347; }
+    .online-dot { display:inline-block; width:7px; height:7px; border-radius:100%; background:var(--ok); }
+    .offline-dot { background:var(--danger); }
+    .btn { border:1px solid #485566; background:#303c4b; border-radius:8px; font-size:13px; font-weight:650; min-height:36px; padding:7px 13px; white-space:nowrap; transition:background .1s; }
+    .btn:hover:not(:disabled) { background:#405065; }
+    .btn.primary { background:#347a71; color:#f6fffd; border-color:#4b958b; }
+    .btn.primary:hover:not(:disabled) { background:#408e82; }
+    .btn.ghost { background:transparent; border-color:var(--line); }
+    .btn.ghost:hover:not(:disabled) { background:var(--surface3); }
+    .btn.danger { color:#ffc8ca; border-color:#854b50; background:#4b3036; }
+    .btn.sm { min-height:29px; padding:5px 9px; font-size:12px; }
+    .demo { display:flex; flex-wrap:wrap; align-items:center; gap:8px; border:1px dashed #4e6073; background:#1a222c; border-radius:10px; padding:8px 12px; margin-bottom:14px; }
+    .demo-label { font-size:11px; color:#9aafc6; font-weight:800; letter-spacing:.08em; text-transform:uppercase; margin-right:5px; }
+    .demo .btn { min-height:28px; padding:4px 10px; font-size:12px; }
+    .demo-hint { font-size:11px; color:#8e9ead; margin-left:auto; }
+    .banner { background:#252f3a; border:1px solid #3a4859; border-radius:12px; padding:14px 16px; margin-bottom:14px; display:flex; gap:16px; justify-content:space-between; align-items:center; }
+    .banner .banner-main { min-width:0; flex:1; }
+    .banner-head { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+    .banner-title { font-size:14px; font-weight:750; }
+    .banner-desc { font-size:12px; color:var(--muted); margin-top:4px; }
+    .track { height:7px; border-radius:12px; overflow:hidden; background:#414e5d; margin-top:11px; }
+    .track>div { height:100%; width:100%; border-radius:12px; background:var(--ok); transition:width .35s ease; }
+    .banner.failure { border-color:#805056; background:#32272e; }
+    .banner.failure .track>div { background:var(--danger); }
+    .layout { display:grid; grid-template-columns: 330px minmax(0,1fr); gap:14px; align-items:start; }
+    .panel { background:var(--surface); border:1px solid var(--line); border-radius:12px; min-width:0; }
+    .sidebar { padding:10px; }
+    .side-head { display:flex; align-items:center; justify-content:space-between; padding:10px 11px 7px; }
+    .side-head strong { font-size:13px; }
+    .side-head span { font-size:11px; color:var(--muted); }
+    .side-divider { height:1px; background:var(--line); margin:6px 10px 9px; }
+    .service { width:100%; background:transparent; border:1px solid transparent; border-radius:9px; display:grid; grid-template-columns:19px minmax(0,1fr) 18px; align-items:center; gap:8px; text-align:left; padding:8px 9px; min-height:49px; }
+    .service:hover { background:#2b3542; }
+    .service.selected { background:#2d4154; border-color:#416487; }
+    .service.failed { border-color:#724951; }
+    .num { font-variant-numeric:tabular-nums; color:#8797aa; font-size:12px; text-align:center; }
+    .service-name { display:block; font-size:13px; font-weight:660; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .service-version { font-size:10.5px; color:var(--muted); margin-top:2px; }
+    .statusicon { font-size:16px; text-align:center; color:var(--ok); }
+    .statusicon.pending { color:#697888; }
+    .statusicon.busy { color:var(--accent); animation:spin 1.4s linear infinite; }
+    .statusicon.failed { color:var(--danger); }
+    @keyframes spin { to {transform:rotate(360deg)} }
+    .detail { padding:18px 20px; min-height:558px; display:flex; flex-direction:column; }
+    .detail-title { display:flex; justify-content:space-between; align-items:start; gap:10px; }
+    .detail-title h2 { font-size:19px; letter-spacing:-.025em; }
+    .subtle { font-size:12px; color:var(--muted); line-height:1.5; }
+    .detail-tabs { display:flex; align-items:center; gap:16px; margin:17px 0 14px; border-bottom:1px solid var(--line); }
+    .detail-tabs span { padding-bottom:9px; font-size:12px; font-weight:700; border-bottom:2px solid var(--accent); }
+    .version-grid { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+    .version-box { background:#252e3a; padding:11px 13px; border:1px solid #354251; border-radius:9px; }
+    .vlabel { font-size:10px; color:#99adbf; text-transform:uppercase; letter-spacing:.09em; font-weight:750; }
+    .vvalue { margin-top:6px; font-size:15px; font-weight:750; }
+    .control-strip { display:flex; flex-wrap:wrap; gap:9px; align-items:end; margin-top:14px; }
+    .field { display:flex; flex-direction:column; gap:6px; min-width:190px; flex:1; }
+    .field label { font-size:11px; color:var(--muted); font-weight:650; }
+    select { height:36px; border:1px solid #546477; background:#283441; color:var(--text); border-radius:7px; padding:0 12px; width:100%; font-size:12px; }
+    .op-panel { margin-top:16px; border-radius:10px; border:1px solid #344456; background:#202a35; padding:14px 15px; flex:1; }
+    .ophead { display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:13px; }
+    .ophead strong { font-size:13px; }
+    .stages { display:grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap:5px; margin-top:14px; }
+    .stage { display:flex; flex-direction:column; gap:8px; min-width:0; color:#8c9aab; font-size:10.5px; line-height:1.3; }
+    .stage-marker { width:100%; height:5px; background:#3d4957; border-radius:5px; }
+    .stage.done .stage-marker { background:var(--ok); }
+    .stage.active .stage-marker { background:var(--accent); animation:pulse 1.2s infinite; }
+    .stage.error .stage-marker { background:var(--danger); }
+    .stage.done { color:#b9dace; }
+    .stage.active { color:#c4ddfa; font-weight:700; }
+    .stage.error { color:#ffbec2; font-weight:700; }
+    @keyframes pulse {50% {opacity:.45}}
+    .step-meta { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; margin-top:15px; padding:11px 12px; border-radius:8px; background:#293543; border:1px solid #3a4b5e; }
+    .step-meta span { font-size:12px; }
+    .step-meta small { font-size:11px; color:var(--muted); }
+    .error-box { border:1px solid #7d4951; border-radius:9px; background:var(--redbg); padding:13px; margin-top:12px; }
+    .error-box strong { display:block; color:#ffbec2; font-size:12px; margin-bottom:8px; }
+    .error-box p { color:#ffd4d6; font-size:12px; line-height:1.6; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .error-actions { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+    .minor { margin-top:10px; font-size:11px; color:var(--muted); }
+    .foot { margin-top:14px; padding:11px 15px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+    .history-button { font-size:12px; color:#c6d3e0; background:transparent; border:0; font-weight:700; }
+    .history-button:hover { color:white; }
+    .foot-right { font-size:11px; color:var(--muted); }
+    .veil { position:fixed; inset:0; background:rgba(4,8,13,.62); z-index:9; display:none; }
+    .veil.visible { display:block; }
+    .drawer { position:fixed; z-index:10; inset:0 0 0 auto; width:min(630px,100%); background:#1b232d; box-shadow:-12px 0 40px #080c1180; display:flex; flex-direction:column; transform:translateX(110%); transition:transform .2s ease; border-left:1px solid #4b5a6a; }
+    .drawer.open { transform:translateX(0); }
+    .drawer-head { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:20px 22px; border-bottom:1px solid var(--line); }
+    .drawer-head h2 { font-size:19px; }
+    .drawer-body { padding:20px 22px; overflow:auto; flex:1; }
+    .history-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:8px; padding:13px 2px; border-bottom:1px solid var(--line); align-items:center; }
+    .history-row strong { font-size:12px; }
+    .history-row small { display:block; color:var(--muted); font-size:11px; padding-top:3px; }
+    .kv { display:grid; grid-template-columns:120px 1fr; gap:9px; padding:9px 0; border-bottom:1px solid #34404f; font-size:12px; }
+    .kv span:first-child { color:var(--muted); }
+    .kv span:last-child { overflow-wrap:anywhere; }
+    pre { font-size:12px; line-height:1.6; background:#121820; border:1px solid #3b4859; border-radius:9px; padding:14px; max-height:320px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .toast { position:fixed; bottom:20px; right:20px; background:#263c39; border:1px solid #548478; color:#c5f0e1; border-radius:9px; padding:11px 16px; font-size:12px; z-index:12; box-shadow:0 12px 40px #0a0a0a88; display:none; }
+    .toast.show { display:block; }
+    @media(min-width:940px) and (min-height:790px) { .detail { min-height:600px; } }
+    @media(max-width:820px) { .layout {grid-template-columns:260px minmax(0,1fr)} .shell {padding:14px} .detail{padding:13px} .control-strip .btn{flex:1} .version-grid{grid-template-columns:1fr 1fr} }
+    @media(max-width:650px) { header{align-items:start} .header-right{justify-content:flex-end} h1{font-size:22px} .layout{grid-template-columns:1fr} .sidebar{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:4px} .side-head{grid-column:1/-1} .side-divider{display:none} .service{min-height:52px;padding:7px;gap:3px;grid-template-columns:14px minmax(0,1fr) 14px} .service-name{font-size:11px} .service-version{font-size:9px} .detail{min-height:470px} .demo-hint{display:none} .foot-right{display:none} }
+    @media(prefers-reduced-motion:reduce){ .statusicon.busy,.stage.active .stage-marker{animation:none} .drawer{transition:none} }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <div class="demo" role="group" aria-label="Prototype simulation controls">
+    <span class="demo-label">Interactive prototype</span>
+    <button class="btn ghost" id="demo-rollout">▶ Simulate rollout</button>
+    <button class="btn ghost" id="demo-rollout-fail">! Fail rollout</button>
+    <button class="btn ghost" id="demo-error">! Fail update</button>
+    <button class="btn ghost" id="demo-self">↻ Self-update</button>
+    <button class="btn ghost" id="demo-reset">Reset</button>
+    <span class="demo-hint">Simulation only · No API calls</span>
+  </div>
+  <header>
+    <div><div class="eyebrow">RustServer Platform</div><h1>Updater Console</h1></div>
+    <div class="header-right">
+      <span class="pill dev">Development</span>
+      <span class="pill" id="connection-pill"><span class="online-dot"></span> Connected</span>
+      <button class="btn ghost" id="refresh" title="Refresh service information">↻ Refresh</button>
+    </div>
+  </header>
+  <div class="banner" id="rollout-banner" aria-live="polite">
+    <div class="banner-main">
+      <div class="banner-head"><span class="banner-title" id="rollout-title">All applications installed</span><span class="pill ok" id="rollout-pill">Ready</span></div>
+      <div class="banner-desc" id="rollout-desc">8 of 8 rollout applications installed · Updater managed separately</div>
+      <div class="track"><div id="rollout-fill"></div></div>
+    </div>
+    <button id="rollout-action" class="btn ghost" hidden>Resume rollout</button>
+  </div>
+  <main class="layout">
+    <nav class="panel sidebar" aria-label="Registered services">
+      <div class="side-head"><strong>Services</strong><span>9 registered</span></div>
+      <div id="service-list" style="display:contents"></div>
+    </nav>
+    <section class="panel detail" aria-live="polite">
+      <div class="detail-title"><div><h2 id="service-title">RustServer.Plugins</h2><p class="subtle" id="service-description">Release management · Independent service</p></div><span class="pill ok" id="runtime-pill">Running</span></div>
+      <div class="detail-tabs"><span>Deployment</span></div>
+      <div class="version-grid"><div class="version-box"><div class="vlabel">Installed release</div><div class="vvalue" id="installed-version">—</div></div><div class="version-box"><div class="vlabel">Latest available</div><div class="vvalue" id="available-version">—</div></div></div>
+      <div class="control-strip">
+        <div class="field"><label for="release-select">Target release</label><select id="release-select"></select></div>
+        <button class="btn primary" id="update-button">Update</button>
+        <button class="btn ghost" id="rollback-button">Rollback</button>
+      </div>
+      <section class="op-panel" id="operation-area" aria-label="Selected service operation">
+        <div class="ophead"><strong id="operation-title">Last operation</strong><span class="pill ok" id="operation-pill">Succeeded</span></div>
+        <p class="subtle" id="operation-subtitle">No operation running</p>
+        <div class="stages" id="stages"></div>
+        <div class="step-meta"><span id="step-message">Service ready</span><small id="step-extra">Current installed release remains active</small></div>
+        <div class="error-box" id="error-box" hidden><strong>⚠ Error details</strong><p id="error-message"></p><div class="error-actions"><button class="btn danger sm" id="copy-error">Copy error</button><button class="btn ghost sm" id="view-error">View full operation →</button><button class="btn ghost sm" id="dismiss-error">Dismiss</button></div></div>
+        <div class="minor" id="operation-footnote">Full reports are available from Operation history.</div>
+      </section>
+    </section>
+  </main>
+  <footer class="panel foot"><button class="history-button" id="open-history">◷ &nbsp; Operation history →</button><span class="foot-right">Operations / release status are separate · Emergency access remains available</span></footer>
+</div>
+<div class="veil" id="veil"></div>
+<aside class="drawer" id="drawer" aria-modal="true" role="dialog" aria-label="Operation history and details">
+  <div class="drawer-head"><h2 id="drawer-title">Operation history</h2><button class="btn ghost sm" id="close-drawer" aria-label="Close panel">✕ Close</button></div>
+  <div class="drawer-body" id="drawer-body"></div>
+</aside>
+<div class="toast" id="toast" role="status"></div>
+<script>
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const order = ['RustServer.Updater','RustServer.Auth','RustServer.Rcon','RustServer.Control','RustServer.Versions','RustServer.Plugins','RustServer.Snapshots','RustServer.PluginCatalog','RustServer.Web'];
+  const seeded = ['v0.1.0-dev.21','v0.1.0-dev.5','v0.1.0-dev.6','v0.1.0-dev.9','v0.1.0-dev.5','v0.1.0-dev.13','v0.1.0-dev.3','v0.1.0-dev.7','v0.1.0-dev.16'];
+  const stages = ['Resolve release','Download package','Verify SHA-256','Stage package','Activate & readiness'];
+  let services, selected, active = null, history = [], ephemeralErrors = {}, rolloutState = 'ready', rolloutRunning = false, followActive = true, running = false, stopping = false, demoFailRollout = false, timerToken = 0, lastRolloutError = null, drawerOp = null, offline = false;
+  function reset() {
+    timerToken++; running=false; rolloutRunning=false; stopping=false; demoFailRollout=false; offline=false; active=null; rolloutState='ready'; lastRolloutError=null;
+    services=order.map((name,i)=>({name,version:seeded[i],latest:`v0.1.0-dev.${Number(seeded[i].split('.').at(-1))+1}`,available:[seeded[i],`v0.1.0-dev.${Number(seeded[i].split('.').at(-1))+1}`],selectedTag:`v0.1.0-dev.${Number(seeded[i].split('.').at(-1))+1}`,runtime:'Running',last:null}));
+    history=[...['RustServer.Web','RustServer.PluginCatalog','RustServer.Snapshots','RustServer.Plugins','RustServer.Versions','RustServer.Control','RustServer.Rcon','RustServer.Auth'].map((app,i)=>({id:`demo-install-${i}`,name:app,type:'Install',status:'Succeeded',step:'Deployment completed',target:services.find(s=>s.name===app).version,error:null,started:new Date(Date.now()-(i+1)*70000),completed:new Date(Date.now()-(i+1)*70000+1639),trace:['Prepare completed','Activation successful','Readiness confirmed']}))];
+    selected='RustServer.Plugins';ephemeralErrors={};closeDrawer();render();
+  }
+  function short(n) {return n.replace('RustServer.','');}
+  function svc(n){return services.find(s=>s.name===n);}
+  function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+  function toast(s){$('toast').textContent=s;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2800);}
+  function escapeHtml(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+  function operationFor(s){return active?.name===s.name ? active : s.last;}
+  function renderServices(){
+    $('service-list').innerHTML=services.map((s,i)=>{
+      const op=operationFor(s), failed=Boolean(ephemeralErrors[s.name]), busy=op && op.status==='Running', typ=failed?'failed':busy?'busy':!s.version?'pending':'ok';
+      const icon=typ==='failed'?'!':typ==='busy'?'↻':typ==='pending'?'○':'✓';
+      return `${i===1?'<div class="side-divider" role="separator"></div>':''}<button class="service ${selected===s.name?'selected':''} ${failed?'failed':''}" data-service="${escapeHtml(s.name)}" aria-current="${selected===s.name?'true':'false'}"><span class="num">${i===0?'◆':i}</span><span><span class="service-name">${escapeHtml(short(s.name))}</span><span class="service-version">${s.version?escapeHtml(s.version):'Not installed'}${busy?' · Updating…':''}</span></span><span class="statusicon ${typ==='ok'?'':typ}" aria-hidden="true">${icon}</span></button>`;
+    }).join('');
+    document.querySelectorAll('[data-service]').forEach(b=>b.addEventListener('click',()=>{if(rolloutRunning)followActive=false;selected=b.dataset.service;render();}));
+  }
+  function renderBanner(){
+    const count=services.slice(1).filter(s=>s.version).length;
+    const failed=rolloutState==='failed';
+    $('rollout-banner').classList.toggle('failure',failed);
+    $('rollout-fill').style.width=`${count/8*100}%`;
+    $('rollout-title').textContent=rolloutRunning?'Initial rollout in progress':failed?'Rollout stopped — action required':count===8?'All applications installed':'Initial rollout available';
+    $('rollout-desc').textContent=rolloutRunning?`${count} of 8 installed · Current: ${short(active?.name||'Pending')}`:failed?`${count} of 8 installed · ${lastRolloutError||'Retry to continue'}`:`${count} of 8 rollout applications installed · Updater managed separately`;
+    $('rollout-pill').className=`pill ${failed?'err':rolloutRunning?'busy':count===8?'ok':'dev'}`;
+    $('rollout-pill').textContent=failed?'Stopped':rolloutRunning?'Running':count===8?'Ready':'Incomplete';
+    $('rollout-action').hidden=rolloutRunning||count===8;
+    $('rollout-action').textContent=failed?'Retry rollout':'Start rollout';
+    $('rollout-action').disabled=running;
+  }
+  function render(){
+    renderServices();renderBanner();
+    const s=svc(selected),op=operationFor(s),busy=Boolean(op?.status==='Running');
+    $('service-title').textContent=s.name;
+    $('service-description').textContent=s.name==='RustServer.Updater'?'Standalone management service · Self-update recovery':'Registered application · Fixed deployment order';
+    $('installed-version').textContent=s.version||'Not installed';
+    $('available-version').textContent=s.latest||'Unavailable';
+    $('runtime-pill').className=`pill ${s.runtime==='Running'?'ok':s.runtime==='Stopped'?'err':'busy'}`;
+    $('runtime-pill').textContent=s.runtime;
+    $('release-select').innerHTML=s.available.map(v=>`<option value="${escapeHtml(v)}">${escapeHtml(v)}</option>`).join('');
+    $('release-select').value=s.available.includes(s.selectedTag)?s.selectedTag:s.available.at(-1);
+    $('release-select').disabled=running;
+    $('update-button').textContent=s.version?'Update':'Install';
+    $('update-button').disabled=running;
+    $('rollback-button').disabled=running||!s.version;
+    $('connection-pill').innerHTML=`<span class="online-dot ${offline?'offline-dot':''}"></span> ${offline?'Reconnecting…':'Connected'}`;
+    $('connection-pill').className=`pill ${offline?'err':''}`;
+    $('refresh').disabled=running;
+    if(op){
+      const failed=op.status==='Failed', stageIdx=op.stageIndex??4;
+      $('operation-title').textContent=op.type==='SelfUpdate'?'Self-update operation':`Latest ${op.type.toLowerCase()} operation`;
+      $('operation-pill').className=`pill ${failed?'err':busy?'busy':'ok'}`;
+      $('operation-pill').textContent=op.status;
+      $('operation-subtitle').textContent=op.type==='SelfUpdate'?'Updater and Executor are deployed together':`${short(s.name)} · ${op.target||'—'}`;
+      $('stages').innerHTML=stages.map((label,i)=>`<div class="stage ${i<stageIdx?'done':i===stageIdx?(failed?'error':busy?'active':'done'):''}"><span class="stage-marker"></span><span>${escapeHtml(label)}</span></div>`).join('');
+      $('step-message').textContent=offline?'Connection lost · Reconnecting every 2 seconds…':op.step||'Completed';
+      $('step-extra').textContent=busy?'Processing operation…':failed?'Check error details below':'Completed';
+    }else{
+      $('operation-title').textContent='Active operation';$('operation-pill').className='pill ok';$('operation-pill').textContent='Idle';
+      $('operation-subtitle').textContent='No operation running. Select a release and run an action.';
+      $('stages').innerHTML=stages.map(label=>`<div class="stage"><span class="stage-marker"></span><span>${escapeHtml(label)}</span></div>`).join('');
+      $('step-message').textContent='Waiting for deployment';$('step-extra').textContent='No active operation';
+    }
+    const err=ephemeralErrors[s.name];
+    $('error-box').hidden=!err;
+    if(err) $('error-message').textContent=err;
+    $('operation-footnote').textContent=busy&&s.name==='RustServer.Updater'?'Self-update can temporarily disconnect this page. No action POST is repeated.':'Open Operation history for timestamps, diagnostics and copyable reports.';
+  }
+  function opCreate(s,type,target){const x={id:`demo-${Math.random().toString(36).slice(2,10)}`,name:s.name,type,status:'Running',step:'Resolving',target,previous:s.version,error:null,started:new Date(),completed:null,trace:[],stageIndex:0};history.unshift(x);s.last=x;active=x;render();return x;}
+  async function simulateOne(s,type,fail=false,token=timerToken){
+    if(token!==timerToken) return false;
+    const target=(type==='Rollback'?(s.version||s.latest):s.selectedTag);
+    const op=opCreate(s,type,target); const before=s.version;
+    const labels=['Resolving release','Downloading package','Verifying SHA-256','Staging package','Activating release and checking readiness'];
+    for(let i=0;i<5;i++){
+      if(token!==timerToken) return false;
+      op.stageIndex=i;op.step=labels[i];op.trace.push(op.step);render();await sleep(i===4?680:550);
+      if(token!==timerToken)return false;
+      if(fail&&i===2){op.status='Failed';op.step='Verifying: checksum mismatch';op.error='SHA-256 verification failed for the release archive. Expected checksum does not match downloaded asset.';op.completed=new Date();ephemeralErrors[s.name]=op.error;active=null;render();return false;}
+    }
+    op.status='Succeeded';op.step='Deployment completed';op.stageIndex=4;op.completed=new Date();s.version=type==='Rollback'?before:target;s.runtime='Running';delete ephemeralErrors[s.name];active=null;render();return true;
+  }
+  async function startSingle(type,fail=false){if(running)return;running=true;const token=timerToken,s=svc(selected);if(type==='SelfUpdate') await simulateSelfUpdate(token);else await simulateOne(s,type,fail,token);if(token===timerToken){running=false;render();}}
+  async function beginRollout(fail=false){
+    if(running)return;running=true;rolloutRunning=true;rolloutState='running';followActive=true;lastRolloutError=null;const token=timerToken;render();
+    const missing=services.slice(1).filter(s=>!s.version);
+    for(let j=0;j<missing.length;j++){
+      if(token!==timerToken)return;
+      const s=missing[j];if(followActive)selected=s.name;render();
+      // A real rollout has separate durable Prepare then Install operations. The UI visualizes both as one application flow.
+      const failThis=fail&&j===2;
+      const ok=await simulateOne(s,'Install',failThis,token);
+      if(token!==timerToken)return;
+      if(!ok){selected=s.name;rolloutRunning=false;running=false;rolloutState='failed';lastRolloutError=`${short(s.name)}: ${ephemeralErrors[s.name]||'Deployment failed'}`;render();return;}
+    }
+    if(token!==timerToken)return;
+    rolloutRunning=false;running=false;rolloutState='ready';render();toast('Rollout completed. All 8 applications installed.');
+  }
+  async function simulateSelfUpdate(token){
+    const s=svc('RustServer.Updater');selected=s.name;render();const before=s.version;
+    const op=opCreate(s,'SelfUpdate',s.selectedTag);
+    for(let i=0;i<4;i++){if(token!==timerToken)return;op.stageIndex=i;op.step=stages[i];op.trace.push(op.step);render();await sleep(620);}
+    if(token!==timerToken)return;
+    op.stageIndex=4;op.step='Activating paired Updater and Executor bundle';op.trace.push(op.step);render();await sleep(500);
+    if(token!==timerToken)return;
+    offline=true;op.step='API restarting · Reconnecting';render();
+    for(let attempt=1;attempt<=4;attempt++){await sleep(2000);if(token!==timerToken)return;op.step=`Reconnecting… attempt ${attempt} · GET operation status`;render();}
+    if(token!==timerToken)return;
+    offline=false;op.status='Succeeded';op.step='Paired Updater and Executor bundle activated';op.trace.push('API connected, operation reconciled, active version verified');op.completed=new Date();s.version=op.target;active=null;running=false;render();toast(`Updater active: ${s.version} (previous: ${before})`);
+  }
+  function openDrawer(){ $('veil').classList.add('visible');$('drawer').classList.add('open');$('drawer').setAttribute('aria-hidden','false');renderHistory(); }
+  function closeDrawer(){ $('veil').classList.remove('visible');$('drawer').classList.remove('open');$('drawer').setAttribute('aria-hidden','true');drawerOp=null; }
+  function renderHistory(){drawerOp=null;$('drawer-title').textContent='Operation history';$('drawer-body').innerHTML=`<p class="subtle" style="margin-bottom:16px">Recent operations in this prototype. Select one to inspect its full report.</p>${history.map(op=>`<div class="history-row"><div><strong>${escapeHtml(short(op.name))} · ${escapeHtml(op.type)}</strong><small>${escapeHtml(op.target||'—')} · ${op.completed?op.completed.toLocaleString():'Running'}</small></div><button class="btn ghost sm" data-open-op="${escapeHtml(op.id)}">${op.status==='Failed'?'Failed ⚠':'Details →'}</button></div>`).join('')}`;document.querySelectorAll('[data-open-op]').forEach(b=>b.addEventListener('click',()=>showOperation(b.dataset.openOp)));}
+  function fullReport(op){const t=op.completed&&op.started?((op.completed-op.started)/1000).toFixed(3)+' s':'Not completed';return ['ID: '+op.id,'Application: '+op.name,'Type: '+op.type,'Status: '+op.status,'Step: '+op.step,'Created: '+op.started.toISOString(),'Started: '+op.started.toISOString(),'Completed: '+(op.completed?.toISOString()||'—'),'Elapsed: '+t,'Previous version: '+(op.previous||'—'),'Target version: '+(op.target||'—'),'Exit code: —','Error: '+(op.error||'None'),'Provisioning output: Unavailable','', '--- Recorded UI steps (prototype only) ---',...(op.trace||[])].join('\n');}
+  function showOperation(id){let op=history.find(x=>x.id===id);if(!op)return;drawerOp=id;$('drawer-title').textContent='Operation details';const elapsed=op.completed?((op.completed-op.started)/1000).toFixed(3)+' s':'Running';$('drawer-body').innerHTML=`<div style="display:flex;justify-content:space-between;gap:12px;align-items:center"><div><strong>${escapeHtml(op.name)}</strong><p class="subtle" style="margin-top:4px">${escapeHtml(op.type)} · ${escapeHtml(op.target||'—')}</p></div><span class="pill ${op.status==='Failed'?'err':op.status==='Running'?'busy':'ok'}">${escapeHtml(op.status)}</span></div><div style="margin-top:20px">${[['Operation ID',op.id],['Started',op.started.toLocaleString()],['Completed',op.completed?.toLocaleString()||'Not completed'],['Elapsed',elapsed],['Last step',op.step],['Previous version',op.previous||'—'],['Target version',op.target||'—']].map(([a,b])=>`<div class="kv"><span>${escapeHtml(a)}</span><span>${escapeHtml(b)}</span></div>`).join('')}</div>${op.error?`<div class="error-box"><strong>⚠ Error</strong><p>${escapeHtml(op.error)}</p></div>`:''}<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 9px"><strong style="font-size:13px">Full technical report</strong><button class="btn ghost sm" id="copy-report">Copy full report</button></div><pre id="report-text"></pre><button class="btn ghost sm" id="back-history">← Back to history</button>`;$('report-text').textContent=fullReport(op);$('copy-report').addEventListener('click',()=>copyText(fullReport(op),'Full report copied'));$('back-history').addEventListener('click',renderHistory);}
+  async function copyText(value,message){try{await navigator.clipboard.writeText(value);toast(message);return true;}catch{const el=document.createElement('textarea');el.value=value;document.body.append(el);el.select();try{document.execCommand('copy');toast(message);return true;}finally{el.remove();}}}
+  $('release-select').addEventListener('change',()=>{svc(selected).selectedTag=$('release-select').value;});
+  $('refresh').addEventListener('click',()=>{render();toast('Demo refreshed · No API request was sent');});
+  $('update-button').addEventListener('click',()=>startSingle(svc(selected).version?(selected==='RustServer.Updater'?'SelfUpdate':'Update'):'Install'));
+  $('rollback-button').addEventListener('click',()=>startSingle('Rollback'));
+  $('demo-rollout').addEventListener('click',()=>{if(running)return;reset();services.slice(1).forEach(s=>{s.version=null;s.runtime='NotInstalled';s.last=null;});rolloutState='pending';beginRollout(false);});
+  $('demo-rollout-fail').addEventListener('click',()=>{if(running)return;reset();services.slice(1).forEach(s=>{s.version=null;s.runtime='NotInstalled';s.last=null;});rolloutState='pending';beginRollout(true);});
+  $('demo-error').addEventListener('click',()=>{if(running){toast('Wait for the current operation to finish');return;}selected='RustServer.Plugins';startSingle('Update',true);});
+  $('demo-self').addEventListener('click',()=>{if(running)return;startSingle('SelfUpdate');});
+  $('demo-reset').addEventListener('click',reset);
+  $('rollout-action').addEventListener('click',()=>beginRollout(false));
+  $('copy-error').addEventListener('click',async()=>{const name=selected;if(await copyText(ephemeralErrors[name], 'Error copied · acknowledged')){delete ephemeralErrors[name];render();}});
+  $('view-error').addEventListener('click',()=>{openDrawer();const x=history.find(op=>op.name===selected&&op.status==='Failed');if(x)showOperation(x.id);});
+  $('dismiss-error').addEventListener('click',()=>{delete ephemeralErrors[selected];render();});
+  $('open-history').addEventListener('click',openDrawer);$('close-drawer').addEventListener('click',closeDrawer);$('veil').addEventListener('click',closeDrawer);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
+  reset();
+</script>
+</body>
+</html>

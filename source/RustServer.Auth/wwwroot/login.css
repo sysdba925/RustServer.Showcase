@@ -1,0 +1,533 @@
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;600;700;800;900&display=swap');
+
+
+/* ==========================================================
+   1. THEME
+   ========================================================== */
+
+:root {
+    font-family: 'Roboto Condensed', 'Arial Narrow', 'Segoe UI', sans-serif;
+    font-size: 14px;
+    letter-spacing: 0.1px;
+    color: #d4d2ce;
+    background: #0c0c0b;
+    --color-text: #d4d2ce;
+    --color-text-muted: #aba69e;
+    --color-background: #0d0d0c;
+    --color-panel: #1a1b19;
+    --color-panel-header: #23231e;
+    --color-border: #4d483e;
+    --color-accent: #bb4b2f;
+    --color-success: #567c46;
+    --color-success-hover: #688f55;
+    --color-warning: #b58b32;
+    --color-warning-hover: #cba044;
+    --color-danger: #8f3933;
+    --color-danger-hover: #a9473f;
+}
+
+
+/* ==========================================================
+   2. GLOBAL
+   ========================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient( ellipse at 8% 90%, #27130f 0%, transparent 34% ), var(--color-background);
+}
+
+h1 {
+    margin: 0;
+    font-size: 23px;
+    line-height: 1.1;
+    font-weight: 900;
+    letter-spacing: 0.6px;
+}
+
+
+/* ==========================================================
+   3. HEADER / BRAND
+   ========================================================== */
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    height: 62px;
+    padding: 0 27px 0 10px;
+    background: linear-gradient(180deg, #181817, #10100f);
+    border-bottom: 1px solid #34312c;
+}
+
+    .brand strong {
+        font-size: 18px;
+        font-weight: 900;
+        letter-spacing: 1.4px;
+        color: #f0eee9;
+    }
+
+        .brand strong span {
+            color: #aaa39b;
+        }
+
+.brand-status {
+    margin-left: auto;
+    padding: 6px 10px;
+    border: 1px solid #514639;
+    color: #b3a694;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1.2px;
+}
+
+
+/* ==========================================================
+   4. RUST LOGO
+   ========================================================== */
+
+.rust-logo-slot {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 62px;
+    height: 62px;
+    background: linear-gradient( 180deg, #321916, #301815 78%, #29201c 91%, #20201e );
+    border-right: 1px solid #34302c;
+}
+
+.rust-logo-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 43px;
+    height: 43px;
+    background: #cf432c;
+}
+
+    .rust-logo-tile img {
+        width: 34px;
+        height: 34px;
+        object-fit: contain;
+    }
+
+.rust-logo-fallback {
+    font-family: Impact, sans-serif;
+    font-size: 29px;
+    font-weight: 900;
+    color: #1c1513;
+}
+
+
+/* ==========================================================
+   5. PAGE LAYOUT
+   ========================================================== */
+
+.page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    min-height: calc(100vh - 62px);
+    padding: 28px 16px;
+}
+
+.login-card {
+    width: min(100%, 440px);
+    background: var(--color-panel);
+    border: 1px solid var(--color-border);
+    border-radius: 0;
+    box-shadow: 0 22px 65px #0008;
+}
+
+
+/* ==========================================================
+   6. PANEL HEADER
+   ========================================================== */
+
+.panel-heading {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 65px;
+    padding: 16px 22px;
+    background: var(--color-panel-header);
+    border-bottom: 1px solid #49453b;
+}
+
+.marker {
+    width: 5px;
+    height: 24px;
+    background: var(--color-accent);
+}
+
+.environment {
+    margin-left: auto;
+    padding: 5px 7px;
+    color: #e0bd82;
+    border: 1px solid #715f43;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+}
+
+.intro {
+    margin: 0;
+    padding: 20px 22px 9px;
+    color: var(--color-text-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+
+/* ==========================================================
+   7. LOGIN FORM
+   ========================================================== */
+
+.login-form,
+.signed-in {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    padding: 12px 22px 24px;
+}
+
+    .login-form[hidden],
+    .signed-in[hidden] {
+        display: none;
+    }
+
+label {
+    margin-top: 6px;
+    color: #cbc5b9;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.7px;
+    text-transform: uppercase;
+}
+
+input {
+    width: 100%;
+    margin-bottom: 7px;
+    padding: 11px 12px;
+    background: #111310;
+    border: 1px solid #5a574e;
+    border-radius: 0;
+    color: #f0eee8;
+    font: 16px 'Roboto Condensed', sans-serif;
+    outline: none;
+}
+
+    input:focus {
+        border-color: #abc67e;
+        box-shadow: 0 0 0 2px #79984b44;
+    }
+
+.signed-in {
+    color: #dedbd3;
+    font-size: 15px;
+}
+
+
+/* ==========================================================
+   8. SHARED BUTTONS
+   ========================================================== */
+
+.button {
+    width: 100%;
+    padding: 11px 13px;
+    border: 1px solid transparent;
+    border-radius: 0;
+    font: 800 14px 'Roboto Condensed', 'Arial Narrow', sans-serif;
+    letter-spacing: 0.7px;
+    cursor: pointer;
+    transition: background-color 0.14s ease, color 0.14s ease;
+}
+
+    .button:focus-visible {
+        outline: 2px solid #c5db84;
+        outline-offset: 2px;
+    }
+
+    .button:disabled {
+        cursor: not-allowed;
+        opacity: 0.42;
+    }
+
+/* Main action */
+
+.primary {
+    margin-top: 7px;
+    background: #647e38;
+    border-color: #8da85a;
+    color: #fff;
+}
+
+    .primary:hover:not(:disabled) {
+        background: #789449;
+    }
+
+/* Secondary action */
+
+.secondary {
+    background: #2d2b26;
+    border-color: #514c41;
+    color: #dedbd3;
+}
+
+/* Links styled as buttons */
+
+a.button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    text-decoration: none;
+}
+
+
+/* ==========================================================
+   9. EXTERNAL PROVIDERS / GOOGLE / STEAM
+   ========================================================== */
+
+.provider-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+}
+
+    .provider-row .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+
+/* ==========================================================
+   10. SEPARATORS AND STATUS
+   ========================================================== */
+
+.separator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 11px 0 2px;
+    color: #8d897f;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+    .separator::before,
+    .separator::after {
+        content: "";
+        height: 1px;
+        background: #48443b;
+        flex: 1;
+    }
+
+.status {
+    min-height: 19px;
+    margin: 0;
+    padding: 0 22px 18px;
+    color: #ed9b89;
+    font-size: 13px;
+}
+
+    .status.success {
+        color: #afd184;
+    }
+
+
+
+/* ==========================================================
+   11. ADMIN PORTAL / LAYOUT
+   ========================================================== */
+
+.admin-portal .login-card {
+    border-radius: 0;
+    box-shadow: 0 22px 65px #0008;
+}
+
+.admin-portal .panel-heading {
+    background: #211f1b;
+}
+
+.admin-portal .environment {
+    border-radius: 0;
+}
+
+.admin-portal .portal-actions {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 20px;
+    padding: 0 22px;
+}
+
+.admin-portal .provider-links {
+    margin-top: 20px;
+    padding: 0 22px;
+}
+
+.admin-portal .provider-links .separator {
+    margin-top: 0;
+}
+
+.linked-provider {
+    margin: 0;
+    color: #afd184;
+    align-self: center;
+    text-align: center;
+}
+
+
+    /* ==========================================================
+   12. ADMIN PORTAL / BUTTONS
+   ========================================================== */
+
+    /* Shared portal button geometry */
+
+    .admin-portal .portal-actions .button {
+        flex: 0 1 190px;
+        width: 190px;
+        min-width: 0;
+        padding: 11px 14px;
+        border-radius: 0;
+        font-weight: 800;
+        transition: background-color 0.14s ease, color 0.14s ease;
+    }
+
+/* Player Portal / normal flow */
+
+.admin-portal .portal-player {
+    background: #647e38;
+    border: 1px solid #647e38;
+    color: #f6f9ea;
+}
+
+    .admin-portal .portal-player:hover {
+        background: #87a94c;
+        border-color: #87a94c;
+        color: #10140b;
+    }
+
+/* Admin Dashboard / elevated functionality */
+
+.admin-portal .portal-admin {
+    background: #b58b32;
+    border: 1px solid #b58b32;
+    color: #171a13;
+}
+
+    .admin-portal .portal-admin:hover {
+        background: #cba044;
+        border-color: #cba044;
+        color: #171a13;
+    }
+
+
+/* ==========================================================
+   12.1. ADMIN PORTAL / SESSION TERMINATION
+   ========================================================== */
+
+.admin-portal .portal-footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 28px;
+    padding: 20px 22px 24px;
+    border-top: 1px solid #3b4038;
+}
+
+    /* Sign out / destructive action */
+
+    .admin-portal .portal-footer .button {
+        flex: 0 0 auto;
+        width: 120px;
+        padding: 11px 14px;
+        border-radius: 0;
+        font-weight: 800;
+        transition: background-color 0.14s ease, color 0.14s ease;
+    }
+
+.admin-portal .portal-danger {
+    background: #8f3933;
+    border: 1px solid #8f3933;
+    color: #fff;
+}
+
+    .admin-portal .portal-danger:hover {
+        background: #a9473f;
+        border-color: #a9473f;
+    }
+
+
+/* ==========================================================
+   12.2. ADMIN PORTAL / RESPONSIVE
+   ========================================================== */
+
+@media (max-width: 440px) {
+    .admin-portal .portal-actions .button {
+        flex-basis: 100%;
+        width: 100%;
+    }
+
+    .admin-portal .provider-links .provider-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================
+   13. PAGE FOOTER
+   ========================================================== */
+
+footer {
+    color: #847e72;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+    footer span {
+        color: #bd563a;
+    }
+
+
+/* ==========================================================
+   14. RESPONSIVE / MOBILE
+   ========================================================== */
+
+@media (max-width: 500px) {
+    .brand {
+        padding-right: 12px;
+    }
+
+        .brand strong {
+            font-size: 15px;
+        }
+
+    .brand-status {
+        font-size: 9px;
+    }
+
+    .login-card {
+        width: 100%;
+    }
+}
+
+@media (max-width: 440px) {
+    .portal-actions .button,
+    .portal-footer .button {
+        flex-basis: 100%;
+        width: 100%;
+    }
+}

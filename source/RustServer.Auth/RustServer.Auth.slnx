@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="RustServer.Auth.csproj" />
+  <Project Path="RustServer.Auth.Tests\RustServer.Auth.Tests.csproj" />
+</Solution>

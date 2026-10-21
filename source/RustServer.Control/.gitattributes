@@ -1,0 +1,4 @@
+# nftables requires Unix newlines; Windows CRLF can produce "unexpected junk".
+*.nft text eol=lf
+*.service text eol=lf
+*.sh text eol=lf

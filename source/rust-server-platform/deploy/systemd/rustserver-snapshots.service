@@ -1,0 +1,28 @@
+[Unit]
+Description=RustServer Snapshots API
+Wants=network-online.target
+After=network-online.target rustserver-control.service
+
+[Service]
+Type=exec
+User=rustserver-snapshots
+Group=rustserver-snapshots
+WorkingDirectory=/opt/rustserver/snapshots/current
+Environment=DOTNET_ENVIRONMENT=Production
+Environment=ASPNETCORE_ENVIRONMENT=Production
+EnvironmentFile=/etc/rustserver/topology.env
+EnvironmentFile=/etc/rustserver/rust-server.env
+Environment=Snapshots__StoragePath=/var/lib/rustserver/snapshots
+LoadCredential=rcon-password:/etc/rustserver/rcon-password
+ExecStart=/bin/bash -ec 'IFS= read -r RustServerRcon__Password < "$$CREDENTIALS_DIRECTORY/rcon-password" || true; test -n "$$RustServerRcon__Password"; export RustServerRcon__Password Snapshots__ServerIdentityPath="$$RUST_SERVER_PATH/server/$$RUST_SERVER_IDENTITY" Snapshots__OxideDataPath="$$RUST_SERVER_PATH/oxide/data" Snapshots__OxideConfigPath="$$RUST_SERVER_PATH/oxide/config" Snapshots__OxidePluginsPath="$$RUST_SERVER_PATH/oxide/plugins" Snapshots__OxideLangPath="$$RUST_SERVER_PATH/oxide/lang"; exec /usr/bin/dotnet /opt/rustserver/snapshots/current/RustServer.Snapshots.Api.dll'
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=30s
+UMask=0007
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+InaccessiblePaths=/etc/rustserver/rcon-password
+
+[Install]
+WantedBy=multi-user.target

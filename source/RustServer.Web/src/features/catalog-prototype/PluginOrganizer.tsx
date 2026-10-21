@@ -1,0 +1,8 @@
+import type { LibraryPlugin, PrototypeLibrary } from './model'
+import { Modal } from './Modal'
+import styles from './prototype.module.css'
+
+export function PluginOrganizer({ plugin, library, onChange, onClose }: { plugin: LibraryPlugin; library: PrototypeLibrary; onChange: (plugin: LibraryPlugin) => void; onClose: () => void }) {
+  const toggle = (name: string, selected: string[]) => selected.includes(name) ? selected.filter(item => item !== name) : [...selected, name]
+  return <Modal titleId="organize-title" onClose={onClose}><header className={styles.dialogHeader}><div><h2 id="organize-title">Organize {plugin.name}</h2><p>Choose any combination. Changes are saved as you select.</p></div><button type="button" onClick={onClose}>Done</button></header><div className={styles.organizerGrid}><fieldset><legend>Library tags</legend>{library.tags.length ? library.tags.map(tag => <label key={tag.name}><input type="checkbox" checked={plugin.tags.some(item => item.name === tag.name)} onChange={() => onChange({ ...plugin, tags: plugin.tags.some(item => item.name === tag.name) ? plugin.tags.filter(item => item.name !== tag.name) : [...plugin.tags, tag] })} />{tag.name}</label>) : <p>No tags yet. Add them in Manage library.</p>}</fieldset><fieldset><legend>Folders</legend>{library.folders.length ? library.folders.map(folder => <label key={folder}><input type="checkbox" checked={plugin.folders.includes(folder)} onChange={() => onChange({ ...plugin, folders: toggle(folder, plugin.folders) })} />{folder}</label>) : <p>No folders yet. Add them in Manage library.</p>}</fieldset></div></Modal>
+}

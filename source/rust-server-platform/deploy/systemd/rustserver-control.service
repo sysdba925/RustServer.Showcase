@@ -1,0 +1,31 @@
+[Unit]
+Description=RustServer Control API
+Wants=network-online.target docker.service
+Requires=rustserver-network-access-helper.service
+After=network-online.target docker.service rustserver-network-access-helper.service
+PartOf=docker.service
+
+[Service]
+Type=exec
+User=rustserver-control
+Group=rustserver-control
+WorkingDirectory=/opt/rustserver/control/current
+Environment=DOTNET_ENVIRONMENT=Production
+Environment=ASPNETCORE_ENVIRONMENT=Production
+EnvironmentFile=/etc/rustserver/topology.env
+EnvironmentFile=/etc/rustserver/rust-server.env
+Environment=RustServerControl__RustServerComposePath=/opt/rustserver/runtime/rust-server/compose.yml
+Environment=RustServerUpdate__SteamCmdComposePath=/opt/rustserver/runtime/steamcmd/compose.yml
+Environment=OxideUpdate__OxideComposePath=/opt/rustserver/runtime/oxide/compose.yml
+Environment=ServerConfiguration__StoragePath=/var/lib/rustserver/control/server-configuration.json
+ExecStart=/bin/bash -ec 'export RustServerControl__RustServerDataPath="$$RUST_SERVER_PATH" RustServerControl__RustServerIdentity="$$RUST_SERVER_IDENTITY"; export ServerConfiguration__InitialDesired__Hostname="$$RUST_SERVER_HOSTNAME" ServerConfiguration__InitialDesired__Description="$$RUST_SERVER_DESCRIPTION" ServerConfiguration__InitialDesired__MaxPlayers="$$RUST_SERVER_MAX_PLAYERS" ServerConfiguration__InitialDesired__TickRate="$$RUST_SERVER_TICK_RATE" ServerConfiguration__InitialDesired__SaveInterval="$$RUST_SERVER_SAVE_INTERVAL" ServerConfiguration__InitialDesired__Seed="$$RUST_SERVER_SEED" ServerConfiguration__InitialDesired__WorldSize="$$RUST_SERVER_WORLD_SIZE"; exec /usr/bin/dotnet /opt/rustserver/control/current/RustServer.Control.Api.dll'
+Restart=on-failure
+RestartSec=5s
+TimeoutStopSec=30s
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

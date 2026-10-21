@@ -1,0 +1,86 @@
+
+@baseUrl = https://localhost:7158
+@username = admin
+@password = 1Qwertyuiop[]
+
+############################################
+# BASIC AUTHENTICATION TESTS
+############################################
+
+
+### 1. Current user (before login: 401)
+GET {{baseUrl}}/api/auth/me
+Accept: application/json
+
+### 2. Login - success (200)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "userName": "{{username}}",
+  "password": "{{password}}"
+}
+
+### 3. Current user (after login: 200)
+GET {{baseUrl}}/api/auth/me
+Accept: application/json
+
+### 4. Logout (204)
+POST {{baseUrl}}/api/auth/logout
+
+### 5. Current user (after logout: 401)
+GET {{baseUrl}}/api/auth/me
+Accept: application/json
+
+### 6. Login - invalid password (401)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "userName": "{{username}}",
+  "password": "incorrect-password"
+}
+
+############################################
+# CSRF PROTECTION TESTS
+############################################
+
+### 1. Get CSRF token before login
+# @name csrfBeforeLogin
+GET {{baseUrl}}/api/auth/csrf
+
+### 2. Login without CSRF (400)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "userName": "{{username}}",
+  "password": "{{password}}"
+}
+
+### 3. Login with CSRF (200)
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+X-CSRF-TOKEN: {{csrfBeforeLogin.response.body.$.token}}
+
+{
+  "userName": "{{username}}",
+  "password": "{{password}}"
+}
+
+### 4. Get CSRF token after login
+# @name csrfAfterLogin
+GET {{baseUrl}}/api/auth/csrf
+
+### 5. Current user (200)
+GET {{baseUrl}}/api/auth/me
+
+### 6. Logout without CSRF (400)
+POST {{baseUrl}}/api/auth/logout
+
+### 7. Logout with CSRF (204)
+POST {{baseUrl}}/api/auth/logout
+X-CSRF-TOKEN: {{csrfAfterLogin.response.body.$.token}}
+
+### 8. Current user after logout (401)
+GET {{baseUrl}}/api/auth/me

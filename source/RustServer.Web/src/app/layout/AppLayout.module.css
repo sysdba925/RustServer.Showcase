@@ -1,0 +1,172 @@
+.application {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-background);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  min-height: var(--header-height);
+  padding: 0 var(--space-5) 0 var(--space-2);
+  background: linear-gradient(180deg, #181817, #10100f);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.logoSlot {
+  display: grid;
+  width: 3.875rem;
+  height: var(--header-height);
+  margin-right: var(--space-4);
+  place-items: center;
+  background: linear-gradient(180deg, #321916 0%, #301815 78%, #20201e 100%);
+  border-right: 1px solid #34302c;
+}
+
+.logoTile {
+  display: grid;
+  width: 2.6875rem;
+  height: 2.6875rem;
+  place-items: center;
+  color: #1c1513;
+  background: #cf432c;
+  font-family: Impact, "Arial Narrow", sans-serif;
+  font-size: 1.75rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.logoImage {
+  display: block;
+  width: 2.125rem;
+  height: 2.125rem;
+  object-fit: contain;
+}
+
+.productIdentity {
+  margin: 0;
+  color: var(--color-text);
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.productContext {
+  margin-left: var(--space-3);
+  color: var(--color-muted-text);
+  font-size: 0.9375rem;
+}
+
+.body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.sidebar {
+  flex: 0 0 var(--sidebar-width);
+  padding: var(--space-6) var(--space-3);
+  background: linear-gradient(180deg, #181715, #241b18);
+  border-right: 1px solid var(--color-border);
+}
+
+.navigation {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.navigationLabel {
+  margin: 0 var(--space-3) var(--space-3);
+  color: #9e9182;
+  font-size: 0.6875rem;
+  font-weight: 850;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.navigationLink {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0.75rem var(--space-3);
+  color: var(--color-muted-text);
+  font-size: 0.9375rem;
+  font-weight: 800;
+  letter-spacing: 0.025em;
+  line-height: 1.25;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+  border-radius: 0;
+}
+
+.navigationLink:hover {
+  color: var(--color-text);
+  background: #514939;
+}
+
+.navigationLink:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+.navigationLinkActive {
+  color: var(--color-text);
+  background: var(--color-active-surface);
+  border-left-color: var(--color-active-surface);
+}
+
+.navigationIcon {
+  flex: 0 0 1rem;
+  text-align: center;
+}
+
+.mainContent {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-6) clamp(var(--space-5), 3vw, var(--space-7));
+}
+
+@media (max-width: 44rem) {
+  .header {
+    padding-right: var(--space-4);
+  }
+
+  .sidebar {
+    flex-basis: 9.5rem;
+    padding: var(--space-5) var(--space-2);
+  }
+
+  .navigationLink {
+    padding-inline: var(--space-2);
+    font-size: 0.8125rem;
+  }
+
+  .navigationLabel {
+    margin-inline: var(--space-2);
+  }
+}
+
+@media (max-width: 32rem) {
+  .logoSlot {
+    margin-right: var(--space-3);
+  }
+
+  .productContext {
+    display: none;
+  }
+
+  .sidebar {
+    flex-basis: 6.75rem;
+  }
+
+  .navigationLink {
+    gap: var(--space-1);
+    font-size: 0.6875rem;
+  }
+
+  .navigationIcon {
+    display: none;
+  }
+}

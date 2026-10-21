@@ -1,0 +1,99 @@
+@startuml
+title RustServer.Auth — authentication and portal routing
+
+hide footbox
+skinparam responseMessageBelowArrow true
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 80
+
+actor Browser
+participant "LoginPageController\n/login" as LoginPage
+participant "Static assets\n/login.css, /login.js" as Assets
+participant "ASP.NET Core antiforgery\n/api/auth/csrf" as Antiforgery
+participant "LoginController\n/api/auth/login" as Login
+participant "Google login controller\n/api/auth/google/login" as GoogleLogin
+participant "Google middleware\n/signin-google" as GoogleMiddleware
+participant "Steam login controller\n/api/auth/steam/login" as SteamLogin
+participant "Steam middleware\n/signin-steam" as SteamMiddleware
+participant "ASP.NET Core Identity" as Identity
+participant "PortalRedirectController\n/portal" as Portal
+participant "AdminPortalController\n/admin" as AdminPortal
+participant "Other applications\n/player, /dashboard" as Applications
+database "Identity data store" as Store
+
+note right of Identity
+  RustServer.Auth owns /login, authentication APIs,
+  /portal and /admin. The platform owns /player and
+  /dashboard; Auth does not implement either route.
+end note
+
+== Display the login page ==
+
+Browser -> LoginPage: GET /login
+LoginPage --> Browser: 200 OK — wwwroot/index.html (text/html)
+Browser -> Assets: GET /login.css and GET /login.js
+Assets --> Browser: 200 OK
+Browser -> Antiforgery: GET /api/auth/csrf
+Antiforgery --> Browser: 200 OK — { token }
+
+== Username and password ==
+
+Browser -> Login: POST /api/auth/login\ncredentials + X-CSRF-TOKEN
+Login -> Identity: PasswordSignInAsync()
+Identity -> Store: Validate credentials and lockout state
+alt Credentials accepted
+  Store --> Identity: User and role claims
+  Identity --> Browser: 200 OK + RustServer.Auth cookie
+  Browser -> Portal: GET /portal
+else Credentials rejected or CSRF validation fails
+  Login --> Browser: 401 Unauthorized or 400 Bad Request
+  Browser -> LoginPage: Remain on /login and display error
+end
+
+== Google sign-in ==
+
+Browser -> GoogleLogin: GET /api/auth/google/login
+GoogleLogin -> GoogleMiddleware: Challenge with application callback\n/api/auth/google/login-callback
+GoogleMiddleware --> Browser: 302 Google authorization endpoint
+Browser -> GoogleMiddleware: GET /signin-google after Google authorization
+GoogleMiddleware --> Browser: 302 application callback
+Browser -> GoogleLogin: GET /api/auth/google/login-callback
+GoogleLogin -> Identity: GetExternalLoginInfoAsync()\nand ExternalLoginSignInAsync()
+alt Linked Google account signs in
+  GoogleLogin --> Browser: 302 Location: /portal
+else Account is not linked or callback data is invalid
+  GoogleLogin --> Browser: 302 Location: /login?googleError=1
+end
+
+== Steam sign-in ==
+
+Browser -> SteamLogin: GET /api/auth/steam/login
+SteamLogin -> SteamMiddleware: Challenge with application callback\n/api/auth/steam/login-callback
+SteamMiddleware --> Browser: 302 Steam OpenID endpoint
+Browser -> SteamMiddleware: GET /signin-steam after Steam verification
+SteamMiddleware --> Browser: 302 application callback
+Browser -> SteamLogin: GET /api/auth/steam/login-callback
+SteamLogin -> Identity: Get or create Steam user
+alt Steam sign-in succeeds
+  SteamLogin --> Browser: 302 Location: /portal
+else Callback data is invalid or sign-in fails
+  SteamLogin --> Browser: 302 Location: /login?steamError=1
+end
+
+== Route an authenticated user ==
+
+Browser -> Portal: GET /portal
+alt No authenticated user
+  Portal --> Browser: 302 Location: /login
+else Administrator
+  Portal --> Browser: 302 Location: /admin
+  Browser -> AdminPortal: GET /admin
+  AdminPortal -> Identity: Validate current user and Admin role
+  Identity --> AdminPortal: Access decision
+  AdminPortal --> Browser: 200 OK or 404 Not Found
+else Player
+  Portal --> Browser: 302 Location: /player
+  Browser -> Applications: GET /player
+end
+
+@enduml

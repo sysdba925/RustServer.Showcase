@@ -1,0 +1,577 @@
+{
+  "openapi": "3.0.4",
+  "info": {
+    "title": "RustServer Snapshots API",
+    "description": "Creates, lists, restores, and deletes Rust Dedicated Server runtime snapshots. Create and restore execute asynchronously.",
+    "version": "v1"
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "tags": [
+          "Health"
+        ],
+        "summary": "Reports whether the Snapshots service is responding.",
+        "description": "Returns 200 OK when the Snapshots service is running and able to respond. This endpoint does not check external dependencies or snapshot storage.",
+        "operationId": "GetHealth",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/operations/{operationId}": {
+      "get": {
+        "tags": [
+          "Operations"
+        ],
+        "summary": "Gets the current state of an asynchronous snapshot operation.",
+        "description": "Create and restore operations progress through pending, running, succeeded, or failed. Operation state is in-process and is available until the service restarts. Returns 200 OK for a known operation or 404 Not Found for an unknown identifier.",
+        "operationId": "GetSnapshotOperation",
+        "parameters": [
+          {
+            "name": "operationId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnapshotOperationResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/snapshots": {
+      "post": {
+        "tags": [
+          "Snapshots"
+        ],
+        "summary": "Queues creation of a Fast or Consistent snapshot.",
+        "description": "A Fast snapshot copies currently persisted runtime files directly into an archive without RCON. It can run while Rust is running, but unsaved changes may be absent and concurrent file writes can yield an inconsistent copy. A Consistent snapshot is accepted only when RustServer.Control reports that the server is stopped; this service never stops or starts it. Returns 202 Accepted with an operation identifier. Invalid input returns 400; an unsafe Consistent request returns 409 ServerMustBeStopped; invalid local storage configuration returns 500; unavailable Control status returns 502. Filesystem and archive failures are reported by the asynchronous operation.",
+        "operationId": "CreateSnapshot",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/CreateSnapshotRequest"
+                  }
+                ],
+                "description": "Request to create a snapshot. The service assigns the identifier and creation time."
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationAcceptedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HttpValidationProblemDetails"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Snapshots"
+        ],
+        "summary": "Lists snapshots, newest first.",
+        "description": "Returns UI-ready snapshot summaries sorted by createdAt descending. createdAt is the human-readable identifier, while id is an opaque stable identifier for follow-up requests. Returns 200 OK with an empty array when no snapshots exist, or 500 when local storage is unavailable or misconfigured.",
+        "operationId": "ListSnapshots",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/SnapshotSummaryResponse"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/snapshots/{id}": {
+      "get": {
+        "tags": [
+          "Snapshots"
+        ],
+        "summary": "Gets one snapshot by its opaque stable identifier.",
+        "description": "Returns the snapshot metadata for the supplied stable identifier. The initial detail model intentionally matches the list summary. Returns 404 Not Found when the metadata or archive does not exist, or 500 when local storage is unavailable or misconfigured.",
+        "operationId": "GetSnapshot",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SnapshotResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Snapshots"
+        ],
+        "summary": "Deletes a snapshot archive and its metadata.",
+        "description": "Deletes the archive and metadata identified by id. Returns 204 No Content on success, 404 Not Found when the snapshot is absent, or 409 SnapshotOperationInProgress while snapshot creation or that snapshot's restore is pending or running. Returns 500 when local storage is unavailable or misconfigured.",
+        "operationId": "DeleteSnapshot",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/snapshots/{id}/restore": {
+      "post": {
+        "tags": [
+          "Snapshots"
+        ],
+        "summary": "Queues destructive restoration of a snapshot.",
+        "description": "Restore replaces the configured server identity and Oxide data, config, plugins, and language directories from the snapshot archive. Rust must be stopped according to RustServer.Control; this service never changes its lifecycle. Returns 202 Accepted with an operation identifier, 404 Not Found for an absent snapshot, 409 ServerMustBeStopped if Rust is running, 500 for local storage/configuration errors, or 502 when Control status is unavailable.",
+        "operationId": "RestoreSnapshot",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OperationAcceptedResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Bad Gateway",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CreateSnapshotRequest": {
+        "required": [
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "enum": [
+              "fast",
+              "consistent"
+            ],
+            "type": "string",
+            "description": "Requested snapshot consistency mode."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Request to create a snapshot. The service assigns the identifier and creation time."
+      },
+      "HttpValidationProblemDetails": {
+        "required": [
+          "errors"
+        ],
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          },
+          "errors": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "additionalProperties": { }
+      },
+      "OperationAcceptedResponse": {
+        "required": [
+          "operationId",
+          "status"
+        ],
+        "type": "object",
+        "properties": {
+          "operationId": {
+            "type": "string",
+            "description": "Opaque operation identifier used with `GET /api/operations/{operationId}`."
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "running",
+              "succeeded",
+              "failed"
+            ],
+            "type": "string",
+            "description": "Initial operation status."
+          }
+        },
+        "additionalProperties": false,
+        "description": "Snapshot operation accepted for asynchronous processing."
+      },
+      "ProblemDetails": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "title": {
+            "type": "string",
+            "nullable": true
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "detail": {
+            "type": "string",
+            "nullable": true
+          },
+          "instance": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": { }
+      },
+      "SnapshotOperationResponse": {
+        "required": [
+          "createdAt",
+          "operationId",
+          "status",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "operationId": {
+            "type": "string",
+            "description": "Opaque operation identifier."
+          },
+          "type": {
+            "enum": [
+              "createSnapshot",
+              "restoreSnapshot"
+            ],
+            "type": "string",
+            "description": "Snapshot operation kind."
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "running",
+              "succeeded",
+              "failed"
+            ],
+            "type": "string",
+            "description": "Current operation status."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "UTC time at which the operation was created.",
+            "format": "date-time"
+          },
+          "startedAt": {
+            "type": "string",
+            "description": "UTC time at which execution began, or null while pending.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "finishedAt": {
+            "type": "string",
+            "description": "UTC time at which execution finished, or null until completion.",
+            "format": "date-time",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "description": "Failure detail, or null when the operation has not failed.",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false,
+        "description": "Current state of an asynchronous snapshot operation."
+      },
+      "SnapshotResponse": {
+        "required": [
+          "createdAt",
+          "id",
+          "sizeBytes",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Opaque stable snapshot identifier. It is not a timestamp and clients must not infer its format."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "UTC time at which the snapshot was created.",
+            "format": "date-time"
+          },
+          "type": {
+            "enum": [
+              "fast",
+              "consistent"
+            ],
+            "type": "string",
+            "description": "Consistency mode used to create the snapshot."
+          },
+          "sizeBytes": {
+            "type": "integer",
+            "description": "Measured archive size in bytes.",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Detail for one snapshot. The current detail intentionally matches the list summary."
+      },
+      "SnapshotSummaryResponse": {
+        "required": [
+          "createdAt",
+          "id",
+          "sizeBytes",
+          "type"
+        ],
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Opaque stable snapshot identifier. It is not a timestamp and clients must not infer its format."
+          },
+          "createdAt": {
+            "type": "string",
+            "description": "UTC time at which the snapshot was created. This is the primary human-readable UI identifier.",
+            "format": "date-time"
+          },
+          "type": {
+            "enum": [
+              "fast",
+              "consistent"
+            ],
+            "type": "string",
+            "description": "Consistency mode used to create the snapshot."
+          },
+          "sizeBytes": {
+            "type": "integer",
+            "description": "Measured archive size in bytes.",
+            "format": "int64"
+          }
+        },
+        "additionalProperties": false,
+        "description": "Snapshot data suitable for a list view."
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Health"
+    },
+    {
+      "name": "Operations"
+    },
+    {
+      "name": "Snapshots"
+    }
+  ]
+}

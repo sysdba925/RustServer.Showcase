@@ -1,0 +1,17 @@
+[Unit]
+Description=RustServer Updater API
+After=network-online.target rustserver-updater-recovery.service
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=rustserver-updater
+Group=rustserver-updater
+ExecStart=/usr/bin/dotnet /opt/rustserver/updater/current/api/RustServer.Updater.Api.dll
+Restart=on-failure
+RestartSec=5
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
