@@ -75,3 +75,13 @@ The `source/` directory contains **public snapshots of the platform's source rep
 ---
 
 *RustServer Platform — engineering project and technical showcase.*
+
+---
+
+## Original editable architecture diagram
+
+A detailed architecture diagram of RustServer Platform, available as an image for quick review and as an editable PowerPoint slide.
+
+[![RustServer Platform — original editable architecture](presentation/slides/05-architecture-original-editable.png)](presentation/slides/05-architecture-original-editable.png)
+
+[**Download the editable architecture diagram (.pptx)**](presentation/RustServer_Architecture_Original_Editable.pptx)
