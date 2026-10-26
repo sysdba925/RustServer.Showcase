@@ -1,5 +1,6 @@
 # RustServer Platform
 
+
 **Self-hosted administration and deployment platform for Rust Dedicated Server.**
 
 A personal engineering project focused on operating a dedicated Rust server through a web interface: lifecycle management, controlled updates, plugin deployment, world backups, and recovery.
@@ -85,3 +86,5 @@ A detailed architecture diagram of RustServer Platform, available as an image fo
 [![RustServer Platform — original editable architecture](presentation/slides/05-architecture-original-editable.png)](presentation/slides/05-architecture-original-editable.png)
 
 [**Download the editable architecture diagram (.pptx)**](presentation/RustServer_Architecture_Original_Editable.pptx)
+
+[View full project on GitHub](https://github.com/sysdba925/RustServer.Showcase)
